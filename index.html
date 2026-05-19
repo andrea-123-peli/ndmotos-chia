@@ -324,12 +324,7 @@ function App() {
       lavEmps:rLavEmps.current, lavProd:rLavProd.current, lavPct:rLavPct.current,
       creds:rCreds.current, ...(patch||{})
     };
-    const json = JSON.stringify(data);
-    // Guardar en window.storage (artifact)
-    window.storage?.set('ndm_all', json)?.catch(()=>{});
-    // Guardar en localStorage como respaldo (persiste en el navegador)
-    try { localStorage.setItem('ndm_all_local', json); } catch(e){}
-  };
+  const json=JSON.stringify(data); try{localStorage.setItem('ndm_all_local',json);}catch(e){} try{await fetch('https://hdbnuzyzoiwihxrohhbn.supabase.co/rest/v1/ndmotos_data?id=eq.sede2&select=data',{method:'PATCH',headers:{'Content-Type':'application/json','apikey':'sb_publishable_qoTLHMnh9nroJTUTBKeOZA_WgMCulnc','Authorization':'Bearer sb_publishable_qoTLHMnh9nroJTUTBKeOZA_WgMCulnc','Prefer':'return=minimal'},body:JSON.stringify({data,updated_at:new Date().toISOString()})});}catch(e){} };
 
   const sInv    = d => { rInv.current=d;    setInv(d);    guardar({inv:d});    };
   const sVen    = d => { rVen.current=d;    setVen(d);    guardar({ven:d});    };
