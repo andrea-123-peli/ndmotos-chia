@@ -282,9 +282,7 @@ function App() {
       try{
         let rawData = null;
         try {
-          const r=await window.storage.get('ndm_all');
-          if(r&&r.value) rawData = r.value;
-        } catch(e){}
+         const resp=await fetch('https://hdbnuzyzoiwihxrohhbn.supabase.co/rest/v1/ndmotos_data?id=eq.sede2&select=data',{headers:{'apikey':'sb_publishable_qoTLHMnh9nroJTUTBKeOZA_WgMCulnc','Authorization':'Bearer sb_publishable_qoTLHMnh9nroJTUTBKeOZA_WgMCulnc'}}); const rows=await resp.json(); if(rows&&rows.length>0&&rows[0].data&&Object.keys(rows[0].data).length>0){rawData=JSON.stringify(rows[0].data);}         } catch(e){}
         // Si window.storage no tiene datos, intentar localStorage
         if(!rawData) {
           try { rawData = localStorage.getItem('ndm_all_local'); } catch(e){}
