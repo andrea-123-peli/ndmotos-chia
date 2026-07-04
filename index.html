@@ -256,6 +256,9 @@ function App() {
   const [lavProd,setLavProd] = useState([]);
   const [lavPct,setLavPct]   = useState(50);
   const [creds,setCreds]     = useState([]);
+  const [adelantos,setAdelantos] = useState([]);
+  const [cajaInicial,setCajaInicial] = useState(0);
+  const [cajaCierres,setCajaCierres] = useState([]);
   const [negNit,setNegNit]    = useState('');
 
   // ── REFS (para guardar sin race conditions) ──
@@ -263,7 +266,7 @@ function App() {
   const rCom=useRef([]);       const rFia=useRef([]);    const rEmp=useRef([]);
   const rCli=useRef([]);       const rMeta=useRef(0);   const rHerr=useRef([]);
   const rEmps=useRef([]);      const rEmpProd=useRef([]); const rLavEmps=useRef([]);
-  const rLavProd=useRef([]);   const rLavPct=useRef(50); const rCreds=useRef([]); const rNegNit=useRef('');
+  const rLavProd=useRef([]);   const rLavPct=useRef(50); const rCreds=useRef([]); const rNegNit=useRef(''); const rAdelantos=useRef([]); const rCajaInicial=useRef(0); const rCajaCierres=useRef([]);
 
   // ── STORAGE ──
   useEffect(()=>{
@@ -299,13 +302,16 @@ function App() {
           if(d.lavPct!=null){rLavPct.current=d.lavPct;setLavPct(d.lavPct);}
           set('creds',rCreds,setCreds);
           if(d.negNit!=null){rNegNit.current=d.negNit;setNegNit(d.negNit);}
+          if(d.adelantos){rAdelantos.current=d.adelantos;setAdelantos(d.adelantos);}
+          if(d.cajaInicial!=null){rCajaInicial.current=d.cajaInicial;setCajaInicial(d.cajaInicial);}
+          if(d.cajaCierres){rCajaCierres.current=d.cajaCierres;setCajaCierres(d.cajaCierres);}
         }
       }catch(e){}
       if(!done){done=true;clearTimeout(to);setReady(true);}
     })();
     return ()=>clearTimeout(to);
   },[]);
-const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current,gas:rGas.current,com:rCom.current,fia:rFia.current,emp:rEmp.current,cli:rCli.current,meta:rMeta.current,herr:rHerr.current,emps:rEmps.current,empProd:rEmpProd.current,lavEmps:rLavEmps.current,lavProd:rLavProd.current,lavPct:rLavPct.current,creds:rCreds.current,negNit:rNegNit.current,...(patch||{})}; const json=JSON.stringify(data); try{localStorage.setItem('ndm_all_local',json);}catch(e){} try{await fetch('https://hdbnuzyzoiwihxrohhbn.supabase.co/rest/v1/ndmotos_data?id=eq.sede2',{method:'PATCH',headers:{'Content-Type':'application/json','apikey':'sb_publishable_qoTLHMnh9nroJTUTBKeOZA_WgMCulnc','Authorization':'Bearer sb_publishable_qoTLHMnh9nroJTUTBKeOZA_WgMCulnc','Prefer':'return=minimal'},body:JSON.stringify({data,updated_at:new Date().toISOString()})});}catch(e){} };
+const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current,gas:rGas.current,com:rCom.current,fia:rFia.current,emp:rEmp.current,cli:rCli.current,meta:rMeta.current,herr:rHerr.current,emps:rEmps.current,empProd:rEmpProd.current,lavEmps:rLavEmps.current,lavProd:rLavProd.current,lavPct:rLavPct.current,creds:rCreds.current,negNit:rNegNit.current,adelantos:rAdelantos.current,cajaInicial:rCajaInicial.current,cajaCierres:rCajaCierres.current,...(patch||{})}; const json=JSON.stringify(data); try{localStorage.setItem('ndm_all_local',json);}catch(e){} try{await fetch('https://hdbnuzyzoiwihxrohhbn.supabase.co/rest/v1/ndmotos_data?id=eq.sede2',{method:'PATCH',headers:{'Content-Type':'application/json','apikey':'sb_publishable_qoTLHMnh9nroJTUTBKeOZA_WgMCulnc','Authorization':'Bearer sb_publishable_qoTLHMnh9nroJTUTBKeOZA_WgMCulnc','Prefer':'return=minimal'},body:JSON.stringify({data,updated_at:new Date().toISOString()})});}catch(e){} };
   
   const sInv    = d => { rInv.current=d;    setInv(d);    guardar({inv:d});    };
   const sVen    = d => { rVen.current=d;    setVen(d);    guardar({ven:d});    };
@@ -323,6 +329,9 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
   const sLavPct = v => { rLavPct.current=v; setLavPct(v); guardar({lavPct:v}); };
   const sCreds  = d => { rCreds.current=d;  setCreds(d);  guardar({creds:d});  };
   const sNegNit = v => { rNegNit.current=v; setNegNit(v); guardar({negNit:v}); };
+  const sAdelantos = d => { rAdelantos.current=d; setAdelantos(d); guardar({adelantos:d}); };
+  const sCajaInicial = v => { rCajaInicial.current=v; setCajaInicial(v); guardar({cajaInicial:v}); };
+  const sCajaCierres = d => { rCajaCierres.current=d; setCajaCierres(d); guardar({cajaCierres:d}); };
 
   const [showBackup,setShowBackup] = useState(false);
   const [perDe,setPerDe]=useState('');
@@ -435,6 +444,7 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
   const [vPago,setVPg]=useState('Efectivo'); const [vTipo,setVT]=useState('prod');
   const [vST,setVST]=useState('Cambio de aceite'); const [vSD,setVSD]=useState('');
   const [vSC,setVSC]=useState('0'); const [vSP,setVSP]=useState('');
+  const [vDNom,setVDNom]=useState(''); const [vDPc,setVDPc]=useState(''); const [vDPv,setVDPv]=useState('');
   const [ticket,setTk]=useState(null);
   const [editVenta,setEditVenta]=useState(null);
   const [vTecnico,setVTecnico]=useState('');
@@ -445,14 +455,20 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
     if(vSel.stock<cant) return toast2('Stock insuficiente. Hay '+vSel.stock,'err');
     const ex=vItems.find(x=>x.id===vSel.id);
     if(ex) setVI(vItems.map(x=>x.id===vSel.id?{...x,cant:x.cant+cant,pv}:x));
-    else   setVI([...vItems,{id:vSel.id,nom:vSel.nom,pv,pc:vSel.pc,cant,sv:false}]);
+    else   setVI([...vItems,{id:vSel.id,nom:vSel.nom,cat:vSel.cat,pv,pc:vSel.pc,cant,sv:false}]);
     setVB('');setVS(null);setVC('1');setVPr('');
   };
 
   const addServ = () => {
     const pv=parseFloat(vSP);
     if(!pv) return toast2('Ingresa el precio','err');
-    const item={id:'SVC'+uid(),nom:vSD||vST,pv,pc:parseFloat(vSC)||0,cant:1,sv:true,tecnico:vTecnico};
+    const pcBase=parseFloat(vSC)||0;
+    const empObjPre=emps.find(e=>e.nom===vTecnico);
+    const lavObjPre=lavEmps.find(e=>e.nom===vTecnico);
+    const pctPre=empObjPre?empObjPre.pct:lavObjPre?lavObjPre.pct:0;
+    // Si tiene tecnico, el costo real = porcentaje del tecnico (para que ganancia = porcentaje del negocio)
+    const pcReal=vTecnico&&pctPre>0?Math.round(pv*(pctPre/100)):pcBase;
+    const item={id:'SVC'+uid(),nom:vSD||vST,pv,pc:pcReal,cant:1,sv:true,tecnico:vTecnico};
     setVI([...vItems,item]);
     // Si hay tecnico asignado, registrar en produccion del taller
     if(vTecnico){
@@ -504,16 +520,21 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
     let total=0, ganancia=0;
     vItems.forEach(it=>{total+=it.pv*it.cant;ganancia+=(it.pv-it.pc)*it.cant;});
     const desc=vItems.map(it=>it.cant+'x '+it.nom).join(', ');
-    const newInv=inv.map(p=>{const it=vItems.find(x=>x.id===p.id);return it&&!it.sv?{...p,stock:p.stock-it.cant}:p;});
+    const newInv=inv.map(p=>{const it=vItems.find(x=>x.id===p.id);return it&&!it.sv&&!it.directo?{...p,stock:p.stock-it.cant}:p;});
     const subtotalCalc=vItems.reduce((a,b)=>a+b.pv*b.cant,0);
     if(ivaActivo) total=Math.round(subtotalCalc*(1+IVA2));
     const ivaMonto=ivaActivo?(total-subtotalCalc):0;
     const venta={id:uid(),fecha:new Date().toISOString(),tipo:'venta',cliente:vCli2||'Cliente general',clienteEmail:vClObj?vClObj.email:'',clienteNit:vClObj?vClObj.nit:'',clienteEmpresa:vClObj?vClObj.empresa:false,desc,total,ganancia,pago:vPago,items:[...vItems],iva:ivaMonto};
     sInv(newInv);
     sVen([...rVen.current,venta]);
-    if(vPago==='Fiado') sFia([...rFia.current,{id:uid(),nombre:vCli2||'Cliente',tel:'',desc,valor:total,fecha:new Date().toISOString(),vence:'',pagado:false}]);
+    if(vPago==='Fiado'){
+      const fiaId=uid();
+      sFia([...rFia.current,{id:fiaId,nombre:vCli2||'Cliente',tel:'',desc,valor:total,fecha:new Date().toISOString(),vence:'',pagado:false,ventaId:venta.id}]);
+      // Marcar la venta con el id del fiado para excluirla de caja hasta que se cobre
+      venta.fiaId=fiaId;
+    }
     setTk(venta);
-    setVI([]);setVB('');setVS(null);setVC('1');setVPr('');setVCl('');setVClObj(null);setVTecnico('');setEditVenta(null);
+    setVI([]);setVB('');setVS(null);setVC('1');setVPr('');setVCl('');setVClObj(null);setVTecnico('');setEditVenta(null);setVDNom('');setVDPc('');setVDPv('');
     toast2('Venta de '+fm(total)+' registrada','ok');
   };
 
@@ -539,6 +560,9 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
   const [crProv,setCrPrv]=useState(''); const [crTotal,setCrTotal]=useState('');
   const [crFecha,setCrFecha]=useState('');
   const [crPagoId,setCrPagoId]=useState(''); const [crPagoMonto,setCrPagoMonto]=useState('');
+  const [editCredId,setEditCredId]=useState(null);
+  const [crAddNom,setCrAddNom]=useState('');
+  const [crAddVal,setCrAddVal]=useState('');
 
   const regCompra = () => {
     const cant=parseInt(cCnt)||1, pc=parseFloat(cPc)||0, pv=parseFloat(cPv)||0;
@@ -546,17 +570,16 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
     if(cNuevo){
       if(!cRef||!cNom) return toast2('Completa referencia y nombre','err');
       const refU=cRef.toUpperCase();
-      if(inv.find(p=>p.id===refU)) return toast2('Esa referencia ya existe','err');
+      // Referencias duplicadas permitidas
       newInv=[...inv,{id:refU,cat:cCat,nom:cNom,pc,pv,stock:cant}]; nomP=cNom;
     } else {
       if(!cSel) return toast2('Selecciona el producto','err');
-      newInv=inv.map(p=>p.id===cSel.id?{...p,stock:p.stock+cant,pc:pc>0?pc:p.pc,pv:pv>0?pv:p.pv}:p); nomP=cSel.nom;
+      nomP=cSel.nom;
     }
-    sInv(newInv);
     sCom([...rCom.current,{id:uid(),fecha:new Date().toISOString(),proveedor:cProv||'Proveedor',desc:cant+'x '+nomP,cant,pc,total:pc*cant,pago:cPago}]);
     sGas([...rGas.current,{id:uid(),fecha:new Date().toISOString(),tipo:'Compra Mercancia',desc:cant+'x '+nomP,monto:pc*cant,pago:cPago}]);
     setCB('');setCS(null);setCCnt('1');setCPc('');setCPv('');setCPrv('');setCN(false);
-    toast2('Compra registrada. Inventario actualizado','ok');
+    toast2('Compra registrada','ok');
   };
 
   // ── FORMULARIO GASTOS ──
@@ -596,7 +619,7 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
   const addProd = () => {
     if(!iRef) return toast2('Escribe la referencia','err');
     if(!iNom) return toast2('Escribe el nombre','err');
-    if(inv.find(p=>p.id===iRef.toUpperCase())) return toast2('Esa referencia ya existe','err');
+    // Referencias duplicadas permitidas
     sInv([...inv,{id:iRef.toUpperCase(),cat:iCat,nom:iNom,pc:parseFloat(iPc)||0,pv:parseFloat(iPv)||0,stock:parseInt(iStk)||0}]);
     setIR('');setIN('');setIP('');setIPv('');setIS('');toast2('Producto agregado','ok');
   };
@@ -648,7 +671,14 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
   const [showG,setShowG]=useState(false);
 
   // ── FORMULARIO EMPLEADOS ──
-  const [epEmp,setEpEmp]=useState(''); const [epNomNuevo,setEpNomNuevo]=useState('');
+  const [epEmp,setEpEmp]=useState('');
+  const [adelModal,setAdelModal]=useState(null);
+  const [cierreModal,setCierreModal]=useState(false);
+  const [cierreMonto,setCierreMonto]=useState('');
+  const [cajaCalc,setCajaCalc]=useState(0);
+  const [adelMonto,setAdelMonto]=useState('');
+  const [adelDesc,setAdelDesc]=useState('');
+  const [adelFecha,setAdelFecha]=useState(''); const [epNomNuevo,setEpNomNuevo]=useState('');
   const [epDesc,setEpDesc]=useState(''); const [epVal,setEpVal]=useState('');
   const [epFecha,setEpFecha]=useState(''); const [epFiltro,setEpFiltro]=useState('');
   const [epFDe,setEpFDe]=useState(''); const [epFHa,setEpFHa]=useState('');
@@ -744,6 +774,105 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
               <KPI lbl="💸 Gastos"          val={fm(tGa)} col={C.re} sub="Incluye nomina" onClick={()=>setTab('gastos')}/>
               <KPI lbl="🏆 Utilidad Neta"   val={fm(util)} col={util>=0?C.ye:C.re} sub="Ganancia - Gastos"/>
             </div>
+            {/* Caja estimada */}
+            {(()=>{
+              const ultimoCierre=cajaCierres.length>0?cajaCierres[cajaCierres.length-1]:null;
+              const fechaCorte=ultimoCierre?ultimoCierre.fecha:null;
+              const saldoIni=ultimoCierre?ultimoCierre.saldo:cajaInicial;
+
+              const venD=ven.filter(v=>!fechaCorte||v.fecha>fechaCorte);
+              // Fiados no cobrados: no entran a caja hasta que se paguen
+              const fiadosNoCobradosIds=fia.filter(f=>!f.pagado&&f.ventaId).map(f=>f.ventaId);
+              const eVentasInv=venD.filter(v=>v.tipo==='venta'&&!fiadosNoCobradosIds.includes(v.id)).reduce((a,b)=>a+b.total,0);
+              const eTaller=venD.filter(v=>v.tipo==='empleado').reduce((a,b)=>a+b.total,0);
+              const eLav=venD.filter(v=>v.tipo==='lavado').reduce((a,b)=>a+b.total,0);
+              const fiadosPagados=fia.filter(f=>f.pagado&&(!fechaCorte||(f.fechaPago||f.fecha)>fechaCorte)).reduce((a,b)=>a+b.valor,0);
+              const totalEntradas=eVentasInv+eTaller+eLav; // fiados ya incluidos en eVentasInv cuando se cobran
+
+              const gasD=gas.filter(g=>!fechaCorte||g.fecha>fechaCorte);
+              const sCompras=gasD.filter(g=>g.tipo==='Compra Mercancia').reduce((a,b)=>a+b.monto,0);
+              const sAbonos=gasD.filter(g=>g.tipo==='Abono Proveedor').reduce((a,b)=>a+b.monto,0);
+              const sNomina=gasD.filter(g=>g.tipo==='Nomina').reduce((a,b)=>a+b.monto,0);
+              const sOtros=gasD.filter(g=>g.tipo!=='Compra Mercancia'&&g.tipo!=='Abono Proveedor'&&g.tipo!=='Nomina').reduce((a,b)=>a+b.monto,0);
+              const adelD=adelantos.filter(a=>!a.pagado&&(!fechaCorte||a.fecha>fechaCorte)).reduce((a,b)=>a+b.monto,0);
+              const empPendD=empProd.filter(p=>!p.pagado&&(!fechaCorte||p.fecha>fechaCorte)).reduce((a,b)=>a+b.emp60,0);
+              const lavPendD=lavProd.filter(p=>!p.pagado&&(!fechaCorte||p.fecha>fechaCorte)).reduce((a,b)=>a+b.empParte,0);
+              const adelTotalPend=adelantos.filter(a=>!a.pagado&&(!fechaCorte||a.fecha>fechaCorte)).reduce((a,b)=>a+b.monto,0);
+              const sPorPagarEmps=Math.max(0,empPendD+lavPendD-adelTotalPend);
+              const totalSalidas=sCompras+sAbonos+sNomina+sOtros; // adelantos ya incluidos en sOtros
+              // sPorPagarEmps NO se descuenta de caja - solo cuando se pague (va a sNomina)
+              const caja2=saldoIni+totalEntradas-totalSalidas;
+
+              return (
+                <div style={{background:C.ca,border:`2px solid ${C.ye}`,borderRadius:12,padding:16,marginBottom:10}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+                    <div style={{fontSize:13,fontWeight:800,color:C.ye}}>💵 Estado de Caja</div>
+                    {fechaCorte&&<div style={{fontSize:10,color:C.mu}}>Desde: {fDT(fechaCorte)}</div>}
+                  </div>
+
+                  <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10,background:C.su,borderRadius:8,padding:'8px 12px',flexWrap:'wrap'}}>
+                    <span style={{fontSize:11,color:C.mu,whiteSpace:'nowrap'}}>
+                      {ultimoCierre?'Saldo desde ultimo cierre:':'Saldo inicial en caja ($):'}
+                    </span>
+                    {!ultimoCierre
+                      ? <Inp v={cajaInicial||''} s={v=>sCajaInicial(parseFloat(v)||0)} type="number" ph="0" style={{maxWidth:130}}/>
+                      : <span style={{fontWeight:800,color:C.ye,fontSize:14}}>{fm(ultimoCierre.saldo)}</span>
+                    }
+                    {ultimoCierre&&<div style={{fontSize:10,color:C.mu,width:'100%'}}>
+                      Cierre: {fDT(ultimoCierre.fecha)} · Todo lo nuevo se acumula desde esa fecha
+                    </div>}
+                  </div>
+
+                  <div style={{fontSize:10,color:C.gr,fontWeight:700,textTransform:'uppercase',marginBottom:6}}>📥 Entradas — {fm(saldoIni+totalEntradas)}</div>
+                  {(()=>{
+                      const eVentasInvSolo=venD.filter(v=>v.tipo==='venta'&&v.items&&v.items.some(it=>!it.sv&&!it.directo)).reduce((a,b)=>a+b.total,0);
+                      const eServicios=venD.filter(v=>v.tipo==='venta'&&v.items&&v.items.every(it=>it.sv)).reduce((a,b)=>a+b.total,0);
+                      const eDirectas=venD.filter(v=>v.tipo==='venta'&&v.items&&v.items.some(it=>it.directo)).reduce((a,b)=>a+b.total,0);
+                      return (
+                        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6,marginBottom:10}}>
+                          {[
+                            {lbl:'Saldo inicial',val:saldoIni,col:C.mu},
+                            {lbl:'🔩 Inventario',val:eVentasInvSolo,col:C.gr},
+                            {lbl:'🔧 Servicios',val:eServicios,col:C.gr},
+                            {lbl:'🚿 Lavadero',val:eLav,col:C.cy},
+                            {lbl:'🔧 Taller',val:eTaller,col:C.bl},
+                            {lbl:'💰 Venta Directa',val:eDirectas,col:C.gr},
+                          ].map((it,i)=>(
+                            <div key={i} style={{background:'rgba(34,197,94,.08)',borderRadius:8,padding:'8px 10px',textAlign:'center'}}>
+                              <div style={{fontSize:9,color:C.mu,textTransform:'uppercase',marginBottom:2}}>{it.lbl}</div>
+                              <div style={{fontSize:13,fontWeight:800,color:it.col}}>{fm(it.val)}</div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  
+
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',background:'rgba(239,68,68,.08)',borderRadius:8,padding:'10px 14px',marginBottom:8}}>
+                    <span style={{fontSize:11,color:C.mu,textTransform:'uppercase',fontWeight:700}}>📤 Gastos del período</span>
+                    <span style={{fontSize:16,fontWeight:800,color:C.re}}>{fm(totalSalidas)}</span>
+                  </div>
+                  {/* Por pagar empleados dentro de caja */}
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',background:'rgba(251,191,36,.08)',borderRadius:8,padding:'8px 12px',marginBottom:12}}>
+                    <span style={{fontSize:11,color:C.mu}}>👷 Por pagar a empleados</span>
+                    <span style={{fontSize:14,fontWeight:800,color:C.or}}>{fm(Math.max(0,empProd.filter(p=>!p.pagado).reduce((a,b)=>a+b.emp60,0)+lavProd.filter(p=>!p.pagado).reduce((a,b)=>a+b.empParte,0)-adelantos.filter(a=>!a.pagado).reduce((a,b)=>a+b.monto,0)))}</span>
+                  </div>
+
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',background:'rgba(251,191,36,.15)',borderRadius:10,padding:'12px 16px',border:`2px solid ${C.ye}`,marginBottom:10}}>
+                    <div>
+                      <div style={{fontSize:11,color:C.mu,textTransform:'uppercase',marginBottom:2}}>💵 En Caja Ahora</div>
+                      <div style={{fontSize:10,color:C.mu}}>{fm(saldoIni+totalEntradas)} entradas — {fm(totalSalidas)} salidas</div>
+                    </div>
+                    <div style={{fontSize:30,fontWeight:900,color:caja2>=0?C.ye:C.re}}>{fm(caja2)}</div>
+                  </div>
+
+                  <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+                    <Btn onClick={()=>{setCajaCalc(caja2);setCierreMonto('0');setCierreModal(true);}} col={C.bl} ch="🔒 Cerrar Caja"/>
+                    {cajaCierres.length>0&&<div style={{fontSize:11,color:C.mu}}>Ultimo cierre: {fDT(cajaCierres[cajaCierres.length-1].fecha)} · Saldo: {fm(cajaCierres[cajaCierres.length-1].saldo)}</div>}
+                  </div>
+                </div>
+              );
+            })()}
             {/* Utilidad por periodo */}
             <Card style={{border:`1px solid ${C.ye}`}} ch={
               <div>
@@ -886,8 +1015,9 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                   }/>
                   <FG lbl="Forma de Pago" ch={<Sel v={vPago} s={setVPg} opts={PAGOS}/>}/>
                   <div style={{display:'flex',gap:8,marginBottom:12}}>
-                    <Btn onClick={()=>setVT('prod')} col={vTipo==='prod'?C.bl:'ghost'} style={{flex:1,justifyContent:'center'}} ch="🔩 Producto"/>
+                    <Btn onClick={()=>setVT('prod')} col={vTipo==='prod'?C.bl:'ghost'} style={{flex:1,justifyContent:'center'}} ch="🔩 Inventario"/>
                     <Btn onClick={()=>setVT('serv')} col={vTipo==='serv'?C.bl:'ghost'} style={{flex:1,justifyContent:'center'}} ch="🔧 Servicio"/>
+                    <Btn onClick={()=>setVT('directo')} col={vTipo==='directo'?C.gr:'ghost'} style={{flex:1,justifyContent:'center'}} ch="💰 Venta Directa"/>
                   </div>
 
                   {vTipo==='prod'&&(
@@ -898,6 +1028,24 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                         <FG lbl="Precio Venta ($)" ch={<Inp v={vPrecio} s={setVPr} type="number" ph="0" style={{borderColor:C.or}}/>}/>
                       </div>
                       <Btn onClick={addItem} col={C.bl} full ch="+ Agregar producto" style={{marginBottom:12}}/>
+                    </div>
+                  )}
+
+                  {vTipo==='directo'&&(
+                    <div>
+                      <FG lbl="Nombre del producto" ch={<Inp v={vDNom} s={setVDNom} ph="Ej: Aceite 20W50, Llanta..."/>}/>
+                      <FG lbl="Precio de venta ($)" ch={<Inp v={vDPv} s={setVDPv} type="number" ph="0" style={{borderColor:C.gr}}/>}/>
+                      {vDPv&&<div style={{background:'rgba(34,197,94,.1)',borderRadius:8,padding:'8px 12px',marginBottom:10,fontSize:13}}>
+                        Ganancia: <span style={{color:C.gr,fontWeight:800}}>{fm(parseFloat(vDPv||0))}</span>
+                      </div>}
+                      <Btn onClick={()=>{
+                        const pv=parseFloat(vDPv)||0;
+                        if(!vDNom.trim()) return toast2('Escribe el nombre del producto','err');
+                        if(!pv) return toast2('Ingresa el precio de venta','err');
+                        setVI([...vItems,{id:'D'+uid(),nom:vDNom.trim(),pv,pc:0,cant:1,sv:false,directo:true}]);
+                        setVDNom('');setVDPc('');setVDPv('');
+                        toast2('Producto agregado','ok');
+                      }} col={C.gr} full ch="+ Agregar Venta Directa" style={{marginBottom:12}}/>
                     </div>
                   )}
 
@@ -1081,7 +1229,7 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                       <FG lbl="Categoria"           ch={<CatSel v={crCat} s={setCrCat}/>}/>
                       <FG lbl="Cantidad"            ch={<Inp v={crCant} s={setCrCant} type="number" ph="1"/>}/>
                       <FG lbl="Precio de Compra ($)" ch={<Inp v={crPc} s={setCrPc} type="number" ph="0"/>}/>
-                      <FG lbl="Precio de Venta ($)"  ch={<Inp v={crPv} s={setCrPv} type="number" ph="0" style={{borderColor:C.or}}/>}/>
+                      }/>
                       <Btn onClick={()=>{
                         if(!crRef.trim()||!crNom.trim()) return toast2('Completa referencia y nombre','err');
                         const refU=crRef.toUpperCase().trim();
@@ -1126,9 +1274,6 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                             if(!crProv.trim()) return toast2('Escribe el proveedor','err');
                             if(!crItems.length) return toast2('Agrega al menos un producto','err');
                             const total=parseFloat(crTotal)||crItems.reduce((a,b)=>a+b.pc*b.cant,0);
-                            const newInv=[...rInv.current];
-                            crItems.forEach(it=>newInv.push({id:it.ref,cat:it.cat,nom:it.nom,pc:it.pc,pv:it.pv,stock:it.cant}));
-                            sInv(newInv);
                             const nom=crItems.length===1?crItems[0].nom:crItems.length+' productos';
                             const totalFact=parseFloat(crTotal)||crItems.reduce((a,b)=>a+b.pc*b.cant,0);
                             sCreds([...rCreds.current,{id:uid(),fecha:crFecha||hoy(),proveedor:crProv.trim(),
@@ -1136,7 +1281,7 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                               totalDeuda:totalFact,pagado:0,pagos:[],activo:true}]);
                             
                             setCrItems([]);setCrTotal('');setCrPrv('');setCrFecha('');
-                            toast2('Factura de '+crItems.length+' producto(s) registrada. Ya aparecen en inventario','ok');
+                            toast2('Factura registrada. Agrega los productos al inventario manualmente','ok');
                           }} col={C.gr} full ch={'✅ Guardar Factura — '+fm(parseFloat(crTotal)||crItems.reduce((a,b)=>a+b.pc*b.cant,0))}/>
                         </div>
                       )}
@@ -1181,6 +1326,17 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                                   <span style={{color:C.gr}}>Pagado: {fm(cr.pagado)} ({pct}%)</span>
                                   <span style={{color:C.re}}>Falta: {fm(falta)}</span>
                                 </div>
+                                {cr.items&&cr.items.length>0&&(
+                                  <div style={{marginBottom:8,background:C.su,borderRadius:8,padding:'6px 10px'}}>
+                                    <div style={{fontSize:10,color:C.mu,textTransform:'uppercase',marginBottom:4}}>Productos en esta factura:</div>
+                                    {cr.items.map((it,i)=>(
+                                      <div key={i} style={{fontSize:11,color:C.tx,padding:'2px 0',display:'flex',justifyContent:'space-between'}}>
+                                        <span>• {it.nom}</span>
+                                        <span style={{color:C.mu}}>{fm(it.total||it.pc*it.cant)}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                                 <div style={{display:'flex',gap:8,alignItems:'center'}}>
                                   <Inp v={crPagoId===cr.id?crPagoMonto:''} s={v=>{setCrPagoId(cr.id);setCrPagoMonto(v);}}
                                     type="number" ph="Monto del abono..." style={{flex:1}}/>
@@ -1192,7 +1348,24 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                                     setCrPagoMonto('');setCrPagoId('');
                                     toast2('Abono de '+fm(abono)+' registrado','ok');
                                   }} ch="💰 Abonar"/>
+                                  <Btn sm col={C.bl} onClick={()=>setEditCredId(editCredId===cr.id?null:cr.id)} ch={editCredId===cr.id?'✕ Cerrar':'✏️ Agregar'}/>
                                 </div>
+                                {editCredId===cr.id&&(
+                                  <div style={{background:C.su,borderRadius:8,padding:10,marginTop:8}}>
+                                    <FG lbl="Descripcion del producto" ch={<Inp v={crAddNom} s={setCrAddNom} ph="Ej: Aceite, Llanta..."/>}/>
+                                    <FG lbl="Valor ($)" ch={<Inp v={crAddVal} s={setCrAddVal} type="number" ph="0"/>}/>
+                                    <Btn onClick={()=>{
+                                      const val=parseFloat(crAddVal)||0;
+                                      if(!crAddNom.trim()||!val) return toast2('Completa los campos','err');
+                                      sCreds(creds.map(x=>x.id===cr.id?{...x,
+                                        totalDeuda:x.totalDeuda+val,
+                                        items:[...(x.items||[]),{id:uid(),nom:crAddNom.trim(),cant:1,pc:val,total:val}]
+                                      }:x));
+                                      setCrAddNom('');setCrAddVal('');
+                                      toast2('Producto agregado. Deuda actualizada','ok');
+                                    }} col={C.gr} full ch="+ Agregar a factura"/>
+                                  </div>
+                                )}
                                 {cr.pagos&&cr.pagos.length>0&&(
                                   <div style={{marginTop:10,background:C.su,borderRadius:8,padding:10}}>
                                     <div style={{fontSize:10,color:C.mu,textTransform:'uppercase',marginBottom:6}}>Abonos realizados</div>
@@ -1616,7 +1789,12 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                                   <TD style={{fontSize:12}} ch={f2.desc||'-'}/>
                                   <TD style={{color:C.pu,fontWeight:700}} ch={fm(f2.valor)}/>
                                   <TD style={{fontSize:12,color:vencido?C.re:C.mu}} ch={(f2.vence?fD(f2.vence):'Sin fecha')+(vencido?' ⚠':'')}/>
-                                 <TD ch={<div style={{display:'flex',gap:4}}><Btn sm col={C.gr} onClick={()=>sFia(fia.map(x=>x.id===f2.id?{...x,pagado:true}:x))} ch="✓ Pago"/><Btn sm col={C.re} onClick={()=>{if(!confirm('¿Seguro?'))return;sFia(fia.filter(x=>x.id!==f2.id));}} ch="🗑"/></div>}/>                                 </tr>
+                                 <TD ch={<div style={{display:'flex',gap:4}}><Btn sm col={C.gr} onClick={()=>{
+                                      const fechaPagoNow=new Date().toISOString();
+                                      sFia(fia.map(x=>x.id===f2.id?{...x,pagado:true,fechaPago:fechaPagoNow}:x));
+                                      // La venta ya existe, solo ahora entra a caja
+                                      toast2('Fiado cobrado. Ya aparece en caja','ok');
+                                    }} ch="✓ Pago"/><Btn sm col={C.re} onClick={()=>{if(!confirm('¿Seguro?'))return;sFia(fia.filter(x=>x.id!==f2.id));}} ch="🗑"/></div>}/>                                 </tr>
                               );
                             })}
                             {!fPend.length&&<tr><td colSpan={6} style={{textAlign:'center',padding:28,color:C.mu}}>✅ Sin fiados pendientes</td></tr>}
@@ -1819,15 +1997,21 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                   const h3=hoy(), mes=h3.slice(0,7), sem=semana();
                   const pe=empProd.filter(p=>p.empleado===e2.nom);
                   const tH=pe.filter(p=>p.fecha===h3).reduce((a,b)=>a+b.valor,0);
-                  const tS=pe.filter(p=>p.fecha>=sem.ini&&p.fecha<=sem.fin&&!p.pagado).reduce((a,b)=>a+b.valor,0);
+                  const peSemTodo=pe.filter(p=>p.fecha>=sem.ini&&p.fecha<=sem.fin);
+                  const peSem=peSemTodo.filter(p=>!p.pagado);
+                  const tS=peSemTodo.reduce((a,b)=>a+b.valor,0); // total semana (pagado o no)
                   const tM=pe.filter(p=>p.fecha.slice(0,7)===mes).reduce((a,b)=>a+b.valor,0);
                   const tT=pe.reduce((a,b)=>a+b.valor,0);
-                  const pagoSem=Math.round(tS*(e2.pct/100));
+                  // Solo lo pendiente para calcular pago
+                  const pagoSem=peSem.reduce((a,b)=>a+(b.emp60||Math.round(b.valor*(b.pct||e2.pct)/100)),0);
                   return (
                     <div key={e2.nom} style={{background:C.ca,border:`1px solid ${C.bo}`,borderLeft:`4px solid ${C.bl}`,borderRadius:10,padding:14,marginBottom:10}}>
                       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
                         <div style={{fontWeight:800,fontSize:15}}>{e2.nom}</div>
-                        <Btn sm col={C.re} onClick={()=>{sEmps(emps.filter(x=>x.nom!==e2.nom));sEmpProd(empProd.filter(p=>p.empleado!==e2.nom));toast2(e2.nom+' eliminado','info');}} ch="Eliminar"/>
+                        <div style={{display:'flex',gap:6}}>
+                          <Btn sm col={C.ye} onClick={()=>{setAdelModal({nom:e2.nom,tipo:'taller'});setAdelMonto('');setAdelDesc('');setAdelFecha(hoy());}} ch="+ Adelanto"/>
+                          <Btn sm col={C.re} onClick={()=>{sEmps(emps.filter(x=>x.nom!==e2.nom));sEmpProd(empProd.filter(p=>p.empleado!==e2.nom));toast2(e2.nom+' eliminado','info');}} ch="Eliminar"/>
+                        </div>
                       </div>
                       <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10,background:C.su,borderRadius:8,padding:'8px 12px'}}>
                         <span style={{fontSize:11,color:C.mu}}>Porcentaje:</span>
@@ -1839,30 +2023,71 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                         <span style={{fontSize:11,color:C.or}}>Neg: {100-e2.pct}%</span>
                       </div>
                       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:10}}>
-                        {[{lbl:'Hoy',val:tH,col:C.bl},{lbl:'Esta semana',val:tS,col:C.cy},{lbl:'Este mes',val:tM,col:C.or},{lbl:'Total',val:tT,col:C.pu}].map((it,i)=>(
+                        {[
+                          {lbl:'Hoy',val:tH,col:C.bl},
+                          {lbl:'Esta semana',val:tS,col:C.cy},
+                          {lbl:'Este mes',val:tM,col:C.or},
+                          {lbl:'Total',val:tT,col:C.pu}
+                        ].map((it,i)=>(
                           <div key={i} style={{background:C.su,borderRadius:8,padding:10,textAlign:'center'}}>
                             <div style={{fontSize:9,color:C.mu,textTransform:'uppercase',marginBottom:3}}>{it.lbl}</div>
-                            <div style={{fontSize:14,fontWeight:800,color:it.col}}>{fm(it.val)}</div>
+                            <div style={{fontSize:16,fontWeight:800,color:it.col}}>{fm(it.val)}</div>
                             <div style={{fontSize:9,color:C.gr,marginTop:2}}>{e2.pct}%: {fm(Math.round(it.val*(e2.pct/100)))}</div>
                           </div>
                         ))}
                       </div>
-                      {tS>0&&(
-                        <div style={{background:'rgba(6,182,212,.1)',border:`1px solid ${C.cy}`,borderRadius:8,padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      {(()=>{
+                        const adelEmp=adelantos.filter(a=>a.nom===e2.nom&&!a.pagado);
+                        const totalAdel=adelEmp.reduce((a,b)=>a+b.monto,0);
+                        const pagoReal=Math.max(0,pagoSem-totalAdel);
+                        return pagoSem>0&&(
                           <div>
-                            <div style={{fontSize:11,color:C.cy,fontWeight:700}}>💰 Pago a {e2.nom}</div>
-                            <div style={{fontSize:12,color:C.mu}}>Semana del {sem.ini} al {sem.fin}</div>
-                            <div style={{fontSize:13,fontWeight:800,color:C.gr}}>Le corresponde: {fm(pagoSem)} ({e2.pct}% de {fm(tS)})</div>
+                            {adelEmp.length>0&&(
+                              <div style={{background:'rgba(239,68,68,.1)',border:`1px solid ${C.re}`,borderRadius:8,padding:'8px 12px',marginBottom:8}}>
+                                <div style={{fontSize:10,color:C.re,fontWeight:700,textTransform:'uppercase',marginBottom:4}}>Adelantos pendientes</div>
+                                {adelEmp.map((a,i)=>(
+                                  <div key={i} style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:2}}>
+                                    <span style={{color:C.mu}}>{a.fecha} — {a.desc||'Adelanto'}</span>
+                                    <span style={{color:C.re,fontWeight:700}}>{fm(a.monto)}</span>
+                                  </div>
+                                ))}
+                                <div style={{display:'flex',justifyContent:'space-between',fontSize:13,fontWeight:800,borderTop:`1px solid ${C.re}`,paddingTop:4,marginTop:4}}>
+                                  <span>Total adelantos</span>
+                                  <span style={{color:C.re}}>{fm(totalAdel)}</span>
+                                </div>
+                              </div>
+                            )}
+                            <div style={{background:'rgba(6,182,212,.1)',border:`1px solid ${C.cy}`,borderRadius:8,padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                              <div>
+                                <div style={{fontSize:11,color:C.cy,fontWeight:700}}>💰 Pago a {e2.nom}</div>
+                                <div style={{fontSize:12,color:C.mu}}>Semana del {sem.ini} al {sem.fin}</div>
+                                <div style={{background:C.su,borderRadius:8,padding:'8px 12px',marginBottom:8}}>
+                                  <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:3}}>
+                                    <span style={{color:C.mu}}>🔧 Produccion semana ({e2.pct}% de {fm(tS)})</span>
+                                    <span style={{color:C.gr,fontWeight:700}}>{fm(pagoSem)}</span>
+                                  </div>
+                                  {totalAdel>0&&<div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:3,borderTop:`1px solid ${C.bo}`,paddingTop:4}}>
+                                    <span style={{color:C.mu}}>Adelantos a descontar</span>
+                                    <span style={{color:C.re,fontWeight:700}}>-{fm(totalAdel)}</span>
+                                  </div>}
+                                  <div style={{display:'flex',justifyContent:'space-between',fontSize:15,fontWeight:800,borderTop:`1px solid ${C.bo}`,paddingTop:6,marginTop:4}}>
+                                    <span>Total a pagar</span>
+                                    <span style={{color:C.gr}}>{fm(pagoReal)}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <Btn sm col={C.gr} onClick={()=>{
+                                // Produccion lavadero de esta semana
+                                sEmp([...rEmp.current,{id:uid(),fecha:hoy(),nombre:e2.nom,cargo:'Taller',periodo:sem.ini+' al '+sem.fin,monto:pagoReal,pago:'Efectivo'}]);
+                                sGas([...rGas.current,{id:uid(),fecha:new Date().toISOString(),tipo:'Nomina',desc:'Pago '+e2.nom+' - Taller '+sem.ini+' al '+sem.fin,monto:pagoReal,pago:'Efectivo'}]);
+                                sEmpProd(empProd.map(p=>p.empleado===e2.nom&&p.fecha>=sem.ini&&p.fecha<=sem.fin?{...p,pagado:true}:p));
+                                sAdelantos(rAdelantos.current.map(a=>a.nom===e2.nom&&!a.pagado?{...a,pagado:true}:a));
+                                toast2('Pago de '+fm(pagoReal)+' a '+e2.nom+' (Taller) registrado','ok');
+                              }} ch="✅ Registrar pago"/>
+                            </div>
                           </div>
-                          <Btn sm col={C.gr} onClick={()=>{
-                            // Solo registrar como referencia en emp (no en gastos, el 40% ya quedo como ganancia)
-                            sEmp([...rEmp.current,{id:uid(),fecha:hoy(),nombre:e2.nom,cargo:'Produccion',periodo:sem.ini+' al '+sem.fin,monto:pagoSem,pago:'Efectivo'}]);
-                            // Marcar como pagado, no borrar (para que quede en historial y resumen)
-                            sEmpProd(empProd.map(p=>p.empleado===e2.nom&&p.fecha>=sem.ini&&p.fecha<=sem.fin?{...p,pagado:true}:p));
-                            toast2('Pago de '+fm(pagoSem)+' a '+e2.nom+' registrado','ok');
-                          }} ch="✅ Registrar pago"/>
-                        </div>
-                      )}
+                        );
+                      })()}
                     </div>
                   );
                 })}
@@ -1877,7 +2102,7 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                   <select value={epFiltro} onChange={e=>setEpFiltro(e.target.value)}
                     style={{background:C.su,border:`1px solid ${C.bo}`,borderRadius:8,color:C.tx,fontSize:13,padding:'8px 12px',outline:'none',flex:1,minWidth:120}}>
                     <option value="">Todos los tecnicos</option>
-                    {emps.map(e2=><option key={e2.nom} value={e2.nom}>{e2.nom}</option>)}
+                    {emps.map(e=><option key={e.nom} value={e.nom}>{e.nom}</option>)}
                   </select>
                   <Inp v={epFDe} s={setEpFDe} type="date" style={{width:150}}/>
                   <Inp v={epFHa} s={setEpFHa} type="date" style={{width:150}}/>
@@ -1894,9 +2119,14 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                     if(epFDe&&p.fecha<epFDe) return false;
                     if(epFHa&&p.fecha>epFHa) return false;
                     return true;
-                  }).slice().reverse();
+                  }).map(p=>({...p,tipo:'🔧 Taller'})).sort((a,b)=>b.fecha.localeCompare(a.fecha));
                   const totVal=fil.reduce((a,b)=>a+b.valor,0);
-                  const tot60=fil.reduce((a,b)=>a+b.emp60,0);
+                  const filPend=fil.filter(p=>!p.pagado);
+                  const tot60Bruto=filPend.reduce((a,b)=>a+(b.emp60||0),0);
+                  // Descontar adelantos pendientes de los empleados en el filtro
+                  const empsEnFil=[...new Set(filPend.map(p=>p.empleado))];
+                  const adelPendFil=adelantos.filter(a=>!a.pagado&&empsEnFil.includes(a.nom)).reduce((a,b)=>a+b.monto,0);
+                  const tot60=Math.max(0,tot60Bruto-adelPendFil);
                   const tot40=fil.reduce((a,b)=>a+b.neg40,0);
                   const porEmp={};
                   fil.forEach(p=>{if(!porEmp[p.empleado])porEmp[p.empleado]={val:0,emp60:0,neg40:0};porEmp[p.empleado].val+=p.valor;porEmp[p.empleado].emp60+=p.emp60;porEmp[p.empleado].neg40+=p.neg40;});
@@ -1904,7 +2134,11 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                     <div>
                       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:14}}>
                         <div style={{background:C.su,borderRadius:8,padding:12,textAlign:'center'}}><div style={{fontSize:10,color:C.mu,textTransform:'uppercase',marginBottom:4}}>Total Producido</div><div style={{fontSize:22,fontWeight:800,color:C.bl}}>{fm(totVal)}</div><div style={{fontSize:10,color:C.mu}}>{fil.length} servicio(s)</div></div>
-                        <div style={{background:'rgba(34,197,94,.1)',borderRadius:8,padding:12,textAlign:'center'}}><div style={{fontSize:10,color:C.mu,textTransform:'uppercase',marginBottom:4}}>Para Tecnicos</div><div style={{fontSize:22,fontWeight:800,color:C.gr}}>{fm(tot60)}</div></div>
+                        <div style={{background:'rgba(34,197,94,.1)',borderRadius:8,padding:12,textAlign:'center'}}>
+                          <div style={{fontSize:10,color:C.mu,textTransform:'uppercase',marginBottom:4}}>Para Tecnicos</div>
+                          <div style={{fontSize:22,fontWeight:800,color:C.gr}}>{fm(tot60)}</div>
+                          {adelPendFil>0&&<div style={{fontSize:10,color:C.re}}>(-{fm(adelPendFil)} adelantos)</div>}
+                        </div>
                         <div style={{background:'rgba(255,107,26,.1)',borderRadius:8,padding:12,textAlign:'center'}}><div style={{fontSize:10,color:C.mu,textTransform:'uppercase',marginBottom:4}}>Para el Negocio</div><div style={{fontSize:22,fontWeight:800,color:C.or}}>{fm(tot40)}</div></div>
                       </div>
                       {Object.keys(porEmp).length>1&&(
@@ -2045,15 +2279,21 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                   const h3=hoy(), mes=h3.slice(0,7), sem=semana();
                   const pe=lavProd.filter(p=>p.empleado===e2.nom);
                   const tH=pe.filter(p=>p.fecha===h3).reduce((a,b)=>a+b.valor,0);
-                  const tS=pe.filter(p=>p.fecha>=sem.ini&&p.fecha<=sem.fin&&!p.pagado).reduce((a,b)=>a+b.valor,0);
+                  const peSemTodo=pe.filter(p=>p.fecha>=sem.ini&&p.fecha<=sem.fin);
+                  const peSem=peSemTodo.filter(p=>!p.pagado);
+                  const tS=peSemTodo.reduce((a,b)=>a+b.valor,0); // total semana (pagado o no)
                   const tM=pe.filter(p=>p.fecha.slice(0,7)===mes).reduce((a,b)=>a+b.valor,0);
                   const tT=pe.reduce((a,b)=>a+b.valor,0);
-                  const pagoSem=Math.round(tS*(e2.pct/100));
+                  // Solo lo pendiente para calcular pago
+                  const pagoSem=peSem.reduce((a,b)=>a+(b.empParte||Math.round(b.valor*(b.pct||e2.pct)/100)),0);
                   return (
                     <div key={e2.nom} style={{background:C.ca,border:`1px solid ${C.bo}`,borderLeft:`4px solid ${C.cy}`,borderRadius:10,padding:14}}>
                       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
                         <div style={{fontWeight:800,fontSize:14}}>🚿 {e2.nom}</div>
-                        <Btn sm col={C.re} onClick={()=>{sLavEmps(lavEmps.filter(x=>x.nom!==e2.nom));sLavProd(lavProd.filter(p=>p.empleado!==e2.nom));toast2(e2.nom+' eliminado','info');}} ch="Eliminar"/>
+                        <div style={{display:'flex',gap:6}}>
+                          <Btn sm col={C.ye} onClick={()=>{setAdelModal({nom:e2.nom,tipo:'lavadero'});setAdelMonto('');setAdelDesc('');setAdelFecha(hoy());}} ch="+ Adelanto"/>
+                          <Btn sm col={C.re} onClick={()=>{sLavEmps(lavEmps.filter(x=>x.nom!==e2.nom));sLavProd(lavProd.filter(p=>p.empleado!==e2.nom));toast2(e2.nom+' eliminado','info');}} ch="Eliminar"/>
+                        </div>
                       </div>
                       <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10,background:C.su,borderRadius:8,padding:'8px 12px'}}>
                         <span style={{fontSize:11,color:C.mu}}>Porcentaje:</span>
@@ -2073,22 +2313,46 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                           </div>
                         ))}
                       </div>
-                      {tS>0&&(
-                        <div style={{background:'rgba(34,197,94,.1)',border:`1px solid ${C.gr}`,borderRadius:8,padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      {(()=>{
+                        const adelEmpL=adelantos.filter(a=>a.nom===e2.nom&&!a.pagado);
+                        const totalAdelL=adelEmpL.reduce((a,b)=>a+b.monto,0);
+                        const pagoRealL=Math.max(0,pagoSem-totalAdelL);
+                        return pagoSem>0&&(
                           <div>
-                            <div style={{fontSize:11,color:C.gr,fontWeight:700}}>💰 Pago a {e2.nom}</div>
-                            <div style={{fontSize:12,color:C.mu}}>Semana del {sem.ini} al {sem.fin}</div>
-                            <div style={{fontSize:13,fontWeight:800,color:C.gr}}>Le corresponde: {fm(pagoSem)} ({e2.pct}% de {fm(tS)})</div>
+                            {adelEmpL.length>0&&(
+                              <div style={{background:'rgba(239,68,68,.1)',border:`1px solid ${C.re}`,borderRadius:8,padding:'8px 12px',marginBottom:8}}>
+                                <div style={{fontSize:10,color:C.re,fontWeight:700,textTransform:'uppercase',marginBottom:4}}>Adelantos pendientes</div>
+                                {adelEmpL.map((a,i)=>(
+                                  <div key={i} style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:2}}>
+                                    <span style={{color:C.mu}}>{a.fecha} — {a.desc||'Adelanto'}</span>
+                                    <span style={{color:C.re,fontWeight:700}}>{fm(a.monto)}</span>
+                                  </div>
+                                ))}
+                                <div style={{display:'flex',justifyContent:'space-between',fontSize:13,fontWeight:800,borderTop:`1px solid ${C.re}`,paddingTop:4,marginTop:4}}>
+                                  <span>Total adelantos</span>
+                                  <span style={{color:C.re}}>{fm(totalAdelL)}</span>
+                                </div>
+                              </div>
+                            )}
+                            <div style={{background:'rgba(34,197,94,.1)',border:`1px solid ${C.gr}`,borderRadius:8,padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                              <div>
+                                <div style={{fontSize:11,color:C.gr,fontWeight:700}}>💰 Pago a {e2.nom}</div>
+                                <div style={{fontSize:12,color:C.mu}}>Semana del {sem.ini} al {sem.fin}</div>
+                                <div style={{fontSize:12,color:C.gr}}>Producción ({e2.pct}%): {fm(pagoSem)}</div>
+                                {totalAdelL>0&&<div style={{fontSize:12,color:C.re}}>Adelantos: -{fm(totalAdelL)}</div>}
+                                <div style={{fontSize:15,fontWeight:800,color:C.gr}}>A pagar: {fm(pagoRealL)}</div>
+                              </div>
+                              <Btn sm col={C.gr} onClick={()=>{
+                                sEmp([...rEmp.current,{id:uid(),fecha:hoy(),nombre:e2.nom,cargo:'Lavadero',periodo:sem.ini+' al '+sem.fin,monto:pagoRealL,pago:'Efectivo'}]);
+                                sGas([...rGas.current,{id:uid(),fecha:new Date().toISOString(),tipo:'Nomina',desc:'Pago '+e2.nom+' - Lavadero '+sem.ini+' al '+sem.fin,monto:pagoRealL,pago:'Efectivo'}]);
+                                sLavProd(lavProd.map(p=>p.empleado===e2.nom&&p.fecha>=sem.ini&&p.fecha<=sem.fin?{...p,pagado:true}:p));
+                                sAdelantos(rAdelantos.current.map(a=>a.nom===e2.nom&&!a.pagado?{...a,pagado:true}:a));
+                                toast2('Pago de '+fm(pagoRealL)+' a '+e2.nom+' registrado','ok');
+                              }} ch="✅ Registrar pago"/>
+                            </div>
                           </div>
-                          <Btn sm col={C.gr} onClick={()=>{
-                            // Solo registrar como referencia en emp (no en gastos, el 40% ya quedo como ganancia)
-                            sEmp([...rEmp.current,{id:uid(),fecha:hoy(),nombre:e2.nom,cargo:'Lavadero',periodo:sem.ini+' al '+sem.fin,monto:pagoSem,pago:'Efectivo'}]);
-                            // Marcar como pagado, no borrar
-                            sLavProd(lavProd.map(p=>p.empleado===e2.nom&&p.fecha>=sem.ini&&p.fecha<=sem.fin?{...p,pagado:true}:p));
-                            toast2('Pago de '+fm(pagoSem)+' a '+e2.nom+' registrado','ok');
-                          }} ch="✅ Registrar pago"/>
-                        </div>
-                      )}
+                        );
+                      })()}
                     </div>
                   );
                 })}
@@ -2122,7 +2386,8 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
                     return true;
                   }).slice().reverse();
                   const totVal=fil.reduce((a,b)=>a+b.valor,0);
-                  const totEmp=fil.reduce((a,b)=>a+b.empParte,0);
+                  const filPendLav=fil.filter(p=>!p.pagado);
+                  const totEmp=filPendLav.reduce((a,b)=>a+b.empParte,0); // solo pendiente
                   const totNeg=fil.reduce((a,b)=>a+b.negParte,0);
                   return (
                     <div>
@@ -2167,6 +2432,81 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
       {/* ╔══════════════════════════════╗ */}
       {/* ║           MODALES            ║ */}
       {/* ╚══════════════════════════════╝ */}
+
+      {/* Modal Cierre de Caja */}
+      <Modal open={cierreModal} onClose={()=>setCierreModal(false)} ch={
+        <div>
+          <div style={{fontSize:18,fontWeight:800,color:C.ye,marginBottom:4}}>🔒 Cerrar Caja</div>
+          <div style={{fontSize:12,color:C.mu,marginBottom:16}}>Total en caja: <span style={{color:C.ye,fontWeight:800}}>{fm(cajaCalc)}</span></div>
+          <div style={{background:'rgba(251,191,36,.1)',border:`1px solid ${C.ye}`,borderRadius:8,padding:12,marginBottom:16,fontSize:12,color:C.tx}}>
+            ¿Cuánto dinero dejas en la caja para el próximo período? El resto se entiende que lo retiraste (utilidades, sueldo socios, etc.)
+          </div>
+          <FG lbl="Monto que dejas en caja ($) — escribe 0 si no dejas nada" ch={
+            <Inp v={cierreMonto} s={setCierreMonto} type="number" ph="0" style={{borderColor:C.ye,fontSize:18,textAlign:'center'}}/>
+          }/>
+          <div style={{display:'flex',gap:8,marginBottom:8}}>
+            <Btn sm col="ghost" onClick={()=>setCierreMonto('0')} ch="Dejar $0"/>
+            <Btn sm col="ghost" onClick={()=>setCierreMonto(String(cajaCalc))} ch={'Dejar todo: '+fm(cajaCalc)}/>
+          </div>
+          {cierreMonto!==''&&(
+            <div style={{background:C.su,borderRadius:8,padding:12,marginBottom:12,fontSize:12}}>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
+                <span style={{color:C.mu}}>Total en caja</span>
+                <span style={{fontWeight:700}}>{fm(cajaCalc)}</span>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
+                <span style={{color:C.mu}}>Dejas en caja</span>
+                <span style={{color:C.ye,fontWeight:700}}>{fm(parseFloat(cierreMonto)||0)}</span>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',borderTop:`1px solid ${C.bo}`,paddingTop:6}}>
+                <span style={{color:C.mu}}>Retiras</span>
+                <span style={{color:C.gr,fontWeight:800}}>{fm(Math.max(0,cajaCalc-(parseFloat(cierreMonto)||0)))}</span>
+              </div>
+            </div>
+          )}
+          <div style={{display:'flex',gap:10}}>
+            <Btn onClick={()=>{
+              const saldoNuevo=parseFloat(cierreMonto)||0;
+              if(saldoNuevo>cajaCalc) return toast2('No puedes dejar más de lo que hay en caja','err');
+              const nuevoCierre={id:uid(),fecha:new Date().toISOString(),saldo:saldoNuevo,totalCaja:cajaCalc,retirado:cajaCalc-saldoNuevo};
+              const nuevosCierres=[...rCajaCierres.current,nuevoCierre];
+              rCajaCierres.current=nuevosCierres;
+              setCajaCierres(nuevosCierres);
+              rCajaInicial.current=saldoNuevo;
+              setCajaInicial(saldoNuevo);
+              guardar({cajaCierres:nuevosCierres,cajaInicial:saldoNuevo});
+              setCierreModal(false);
+              toast2('Caja cerrada. Saldo nuevo: '+fm(saldoNuevo)+' · Retiraste: '+fm(cajaCalc-saldoNuevo),'ok');
+            }} col={C.ye} style={{flex:1,justifyContent:'center'}} ch="🔒 Confirmar Cierre"/>
+            <Btn onClick={()=>setCierreModal(false)} col="ghost" ch="Cancelar"/>
+          </div>
+        </div>
+      }/>
+
+      {/* Modal Adelanto */}
+      <Modal open={!!adelModal} onClose={()=>setAdelModal(null)} ch={adelModal&&(
+        <div>
+          <div style={{fontSize:18,fontWeight:800,color:C.ye,marginBottom:16}}>💰 Registrar Adelanto — {adelModal.nom}</div>
+          <FG lbl="Fecha" ch={<Inp v={adelFecha||hoy()} s={setAdelFecha} type="date"/>}/>
+          <FG lbl="Descripcion (para qué fue)" ch={<Inp v={adelDesc} s={setAdelDesc} ph="Ej: Para almuerzo, transporte..."/>}/>
+          <FG lbl="Monto ($)" ch={<Inp v={adelMonto} s={setAdelMonto} type="number" ph="0" style={{borderColor:C.ye}}/>}/>
+          <div style={{display:'flex',gap:10}}>
+            <Btn onClick={()=>{
+              const monto=parseFloat(adelMonto);
+              if(!monto) return toast2('Ingresa el monto','err');
+              const nuevoAdel={id:uid(),nom:adelModal.nom,tipo:adelModal.tipo,
+                fecha:adelFecha||hoy(),desc:adelDesc||'Adelanto',monto,pagado:false};
+              sAdelantos([...rAdelantos.current,nuevoAdel]);
+              sGas([...rGas.current,{id:nuevoAdel.id+'g',fecha:new Date().toISOString(),
+                tipo:'Adelanto Empleado',desc:'Adelanto a '+adelModal.nom+': '+(adelDesc||'sin descripcion'),
+                monto,pago:'Efectivo'}]);
+              setAdelModal(null);
+              toast2('Adelanto de '+fm(monto)+' registrado y descontado de caja','ok');
+            }} col={C.ye} style={{flex:1,justifyContent:'center'}} ch="💰 Registrar Adelanto"/>
+            <Btn onClick={()=>setAdelModal(null)} col="ghost" ch="Cancelar"/>
+          </div>
+        </div>
+      )}/>
 
       {/* Modal Stock Bajo */}
       <Modal open={showStockModal} onClose={()=>setShowStockModal(false)} ch={
@@ -2335,7 +2675,7 @@ const guardar = async patch => { const data = {inv:rInv.current,ven:rVen.current
             <tbody>
               {ticket.items&&ticket.items.map((it,i)=>(
                 <tr key={i} style={{borderBottom:'1px solid #e5e5e5'}}>
-                  <td style={{fontSize:12,padding:'8px 6px'}}>{it.sv?'🔧 ':''}{it.nom}</td>
+                  <td style={{fontSize:12,padding:'8px 6px'}}>{it.sv?'🔧 ':''}{it.nom}{it.cat?' ('+it.cat+')':''}</td>
                   <td style={{fontSize:12,padding:'8px 6px',textAlign:'center'}}>{it.cant}</td>
                   <td style={{fontSize:12,padding:'8px 6px',textAlign:'right'}}>{fm(it.pv)}</td>
                   <td style={{fontSize:12,padding:'8px 6px',textAlign:'right',fontWeight:700}}>{fm(it.pv*it.cant)}</td>
