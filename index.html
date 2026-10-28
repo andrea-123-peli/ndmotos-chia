@@ -296,14 +296,21 @@ function App() {
           if(d.meta!=null){rMeta.current=d.meta;setMeta(d.meta);}
           set('herr',rHerr,setHerr);
           set('emps',rEmps,setEmps,toEmpObj);
-          const normProd = arr => arr.map(p=>({pagado:false,...p}));
+          const normProd = arr => arr.map(p=>({...p, pagado: p.pagado===true}));
           set('empProd',rEmpProd,setEmpProd,normProd);
           set('lavEmps',rLavEmps,setLavEmps,toEmpObj);
           set('lavProd',rLavProd,setLavProd,normProd);
           if(d.lavPct!=null){rLavPct.current=d.lavPct;setLavPct(d.lavPct);}
           set('creds',rCreds,setCreds);
           if(d.negNit!=null){rNegNit.current=d.negNit;setNegNit(d.negNit);}
-          if(d.adelantos){rAdelantos.current=d.adelantos;setAdelantos(d.adelantos);}
+          if(d.adelantos){
+            // Proteger pagado:true — si el ref local ya tiene un adelanto pagado, no pisarlo
+            const adelMerged = d.adelantos.map(a => {
+              const local = rAdelantos.current.find(x=>x.id===a.id);
+              return {...a, pagado: (local&&local.pagado===true) ? true : a.pagado===true};
+            });
+            rAdelantos.current=adelMerged; setAdelantos(adelMerged);
+          }
           if(d.cajaInicial!=null){rCajaInicial.current=d.cajaInicial;setCajaInicial(d.cajaInicial);}
           if(d.cajaCierres){rCajaCierres.current=d.cajaCierres;setCajaCierres(d.cajaCierres);}
         }
@@ -316,7 +323,8 @@ let _guardarTimer=null;
   const guardar = async patch => {
     clearTimeout(_guardarTimer);
     _guardarTimer=setTimeout(async()=>{
-    const data = {inv:rInv.current,ven:rVen.current,gas:rGas.current,com:rCom.current,fia:rFia.current,emp:rEmp.current,cli:rCli.current,meta:rMeta.current,herr:rHerr.current,emps:rEmps.current,empProd:rEmpProd.current,lavEmps:rLavEmps.current,lavProd:rLavProd.current,lavPct:rLavPct.current,creds:rCreds.current,negNit:rNegNit.current,adelantos:rAdelantos.current,cajaInicial:rCajaInicial.current,cajaCierres:rCajaCierres.current,...(patch||{})}; const json=JSON.stringify(data); try{localStorage.setItem('ndm_all_local',json);}catch(e){} try{await fetch('https://hdbnuzyzoiwihxrohhbn.supabase.co/rest/v1/ndmotos_data?id=eq.sede2',{method:'PATCH',headers:{'Content-Type':'application/json','apikey':'sb_publishable_qoTLHMnh9nroJTUTBKeOZA_WgMCulnc','Authorization':'Bearer sb_publishable_qoTLHMnh9nroJTUTBKeOZA_WgMCulnc','Prefer':'return=minimal'},body:JSON.stringify({data,updated_at:new Date().toISOString()})});}catch(e){} },300); };
+    const normAdel = arr => arr.map(a=>({...a, pagado: a.pagado===true}));
+    const data = {inv:rInv.current,ven:rVen.current,gas:rGas.current,com:rCom.current,fia:rFia.current,emp:rEmp.current,cli:rCli.current,meta:rMeta.current,herr:rHerr.current,emps:rEmps.current,empProd:rEmpProd.current,lavEmps:rLavEmps.current,lavProd:rLavProd.current,lavPct:rLavPct.current,creds:rCreds.current,negNit:rNegNit.current,adelantos:normAdel(rAdelantos.current),cajaInicial:rCajaInicial.current,cajaCierres:rCajaCierres.current,...(patch||{})}; const json=JSON.stringify(data); try{localStorage.setItem('ndm_all_local',json);}catch(e){} try{await fetch('https://hdbnuzyzoiwihxrohhbn.supabase.co/rest/v1/ndmotos_data?id=eq.sede2',{method:'PATCH',headers:{'Content-Type':'application/json','apikey':'sb_publishable_qoTLHMnh9nroJTUTBKeOZA_WgMCulnc','Authorization':'Bearer sb_publishable_qoTLHMnh9nroJTUTBKeOZA_WgMCulnc','Prefer':'return=minimal'},body:JSON.stringify({data,updated_at:new Date().toISOString()})});}catch(e){} },300); };
   
   const sInv    = d => { rInv.current=d;    setInv(d);    guardar({inv:d});    };
   const sVen    = d => { rVen.current=d;    setVen(d);    guardar({ven:d});    };
@@ -421,9 +429,9 @@ let _guardarTimer=null;
       if(d.meta!=null){ rMeta.current=d.meta; setMeta(d.meta); }
       if(d.herr){ rHerr.current=d.herr; setHerr(d.herr); }
       if(d.emps){ const e2=d.emps.map(e=>typeof e==='string'?{nom:e,pct:60}:e); rEmps.current=e2; setEmps(e2); }
-      if(d.empProd){ const ep=d.empProd.map(p=>({pagado:false,...p})); rEmpProd.current=ep; setEmpProd(ep); }
+      if(d.empProd){ const ep=d.empProd.map(p=>({...p, pagado: p.pagado===true})); rEmpProd.current=ep; setEmpProd(ep); }
       if(d.lavEmps){ const le=d.lavEmps.map(e=>typeof e==='string'?{nom:e,pct:50}:e); rLavEmps.current=le; setLavEmps(le); }
-      if(d.lavProd){ const lp=d.lavProd.map(p=>({pagado:false,...p})); rLavProd.current=lp; setLavProd(lp); }
+      if(d.lavProd){ const lp=d.lavProd.map(p=>({...p, pagado: p.pagado===true})); rLavProd.current=lp; setLavProd(lp); }
       if(d.lavPct!=null){ rLavPct.current=d.lavPct; setLavPct(d.lavPct); }
       if(d.creds){ rCreds.current=d.creds; setCreds(d.creds); }
       if(d.negNit!=null){ rNegNit.current=d.negNit; setNegNit(d.negNit); }
@@ -492,16 +500,20 @@ let _guardarTimer=null;
   const cargarVentaParaEditar = v => {
     // Restaurar stock de la venta vieja
     const newInv=v.items?inv.map(p=>{const it=v.items.find(x=>x.id===p.id);return it&&!it.sv?{...p,stock:p.stock+it.cant}:p;}):inv;
-    sInv(newInv);
-    // Quitar la venta vieja
-    sVen(rVen.current.filter(x=>x.id!==v.id));
+    const newVenEdit=rVen.current.filter(x=>x.id!==v.id);
+    const patch2={inv:newInv,ven:newVenEdit};
     // Quitar produccion asociada en taller/lavadero si tenia
     if(v.items){
       const idsT=v.items.filter(it=>it.sv).map(it=>it.id+'t');
       const idsL=v.items.filter(it=>it.sv).map(it=>it.id+'l');
-      if(idsT.length) sEmpProd(rEmpProd.current.filter(p=>!idsT.includes(p.id)));
-      if(idsL.length) sLavProd(rLavProd.current.filter(p=>!idsL.includes(p.id)));
+      if(idsT.length){ patch2.empProd=rEmpProd.current.filter(p=>!idsT.includes(p.id)); }
+      if(idsL.length){ patch2.lavProd=rLavProd.current.filter(p=>!idsL.includes(p.id)); }
     }
+    rInv.current=newInv; setInv(newInv);
+    rVen.current=newVenEdit; setVen(newVenEdit);
+    if(patch2.empProd){ rEmpProd.current=patch2.empProd; setEmpProd(patch2.empProd); }
+    if(patch2.lavProd){ rLavProd.current=patch2.lavProd; setLavProd(patch2.lavProd); }
+    guardar(patch2);
     // Cargar los items en el formulario
     setVI(v.items?[...v.items]:[]);
     setVCl(v.cliente==='Cliente general'?'':v.cliente);
@@ -521,8 +533,6 @@ let _guardarTimer=null;
     if(ivaActivo) total=Math.round(subtotalCalc*(1+IVA2));
     const ivaMonto=ivaActivo?(total-subtotalCalc):0;
     const venta={id:uid(),fecha:new Date().toISOString(),tipo:'venta',cliente:vCli2||'Cliente general',clienteEmail:vClObj?vClObj.email:'',clienteNit:vClObj?vClObj.nit:'',clienteEmpresa:vClObj?vClObj.empresa:false,desc,total,ganancia,pago:vPago,items:[...vItems],iva:ivaMonto};
-    sInv(newInv);
-    sVen([...rVen.current,venta]);
     // Registrar produccion de empleados al confirmar la venta (no antes, para evitar duplicados)
     let eprodAct=rEmpProd.current; let lprodAct=rLavProd.current;
     vItems.forEach(it=>{
@@ -541,21 +551,33 @@ let _guardarTimer=null;
         }
       }
     });
-    if(eprodAct!==rEmpProd.current) sEmpProd(eprodAct);
-    if(lprodAct!==rLavProd.current) sLavProd(lprodAct);
     if(vPago==='Fiado'){
       const fiaId=uid();
-      sFia([...rFia.current,{id:fiaId,nombre:vCli2||'Cliente',tel:'',desc,valor:total,fecha:new Date().toISOString(),vence:'',pagado:false,ventaId:venta.id}]);
-      // Marcar la venta con el id del fiado para excluirla de caja hasta que se cobre
       venta.fiaId=fiaId;
     }
-    setTk(venta);
     // Si hay cliente seleccionado, agregar venta a su historial
+    let newCli=rCli.current;
     if(vClObj){
       const tecnicos=[...new Set(vItems.filter(it=>it.tecnico).map(it=>it.tecnico))].join(', ');
-    const serv={id:venta.id,fecha:venta.fecha,desc,total,cobrado:total,rep:desc,tecnico:tecnicos||'',items:[...vItems],tipo:'venta'};
-      sCli(cli.map(c=>c.id===vClObj.id?{...c,servicios:[...( c.servicios||[]),serv]}:c));
+      const serv={id:venta.id,fecha:venta.fecha,desc,total,cobrado:total,rep:desc,tecnico:tecnicos||'',items:[...vItems],tipo:'venta'};
+      newCli=rCli.current.map(c=>c.id===vClObj.id?{...c,servicios:[...(c.servicios||[]),serv]}:c);
     }
+    // Construir el patch completo para un único guardar()
+    const newVen=[...rVen.current,venta];
+    const patch={inv:newInv,ven:newVen};
+    if(eprodAct!==rEmpProd.current) patch.empProd=eprodAct;
+    if(lprodAct!==rLavProd.current) patch.lavProd=lprodAct;
+    if(venta.fiaId) patch.fia=[...rFia.current,{id:venta.fiaId,nombre:vCli2||'Cliente',tel:'',desc,valor:total,fecha:new Date().toISOString(),vence:'',pagado:false,ventaId:venta.id}];
+    if(newCli!==rCli.current) patch.cli=newCli;
+    // Actualizar todos los refs y estados de una sola vez
+    rInv.current=newInv; setInv(newInv);
+    rVen.current=newVen; setVen(newVen);
+    if(patch.empProd){ rEmpProd.current=patch.empProd; setEmpProd(patch.empProd); }
+    if(patch.lavProd){ rLavProd.current=patch.lavProd; setLavProd(patch.lavProd); }
+    if(patch.fia){ rFia.current=patch.fia; setFia(patch.fia); }
+    if(patch.cli){ rCli.current=patch.cli; setCli(patch.cli); }
+    guardar(patch);
+    setTk(venta);
     setVI([]);setVB('');setVS(null);setVC('1');setVPr('');setVCl('');setVClObj(null);setVTecnico('');setEditVenta(null);setVDNom('');setVDPc('');setVDPv('');
     toast2('Venta de '+fm(total)+' registrada','ok');
   };
@@ -563,15 +585,21 @@ let _guardarTimer=null;
   const borrarVenta = id => {
     const v=ven.find(x=>x.id===id);
     const newInv=v&&v.items?inv.map(p=>{const it=v.items.find(x=>x.id===p.id);return it&&!it.sv?{...p,stock:p.stock+it.cant}:p;}):inv;
-    sInv(newInv); sVen(ven.filter(x=>x.id!==id));
+    const newVen=ven.filter(x=>x.id!==id);
+    rInv.current=newInv; setInv(newInv);
+    rVen.current=newVen; setVen(newVen);
     // Borrar produccion del empleado asociada a esta venta (sv=true sin importar si tiene tecnico)
+    const patch3={inv:newInv,ven:newVen};
     if(v&&v.items){
       const svIds=v.items.filter(it=>it.sv).map(it=>it.id);
       const idsT=svIds.map(id=>id+'t');
       const idsL=svIds.map(id=>id+'l');
-      sEmpProd(rEmpProd.current.filter(x=>!idsT.includes(x.id)));
-      sLavProd(rLavProd.current.filter(x=>!idsL.includes(x.id)));
+      const nEP=rEmpProd.current.filter(x=>!idsT.includes(x.id));
+      const nLP=rLavProd.current.filter(x=>!idsL.includes(x.id));
+      if(nEP.length!==rEmpProd.current.length){ patch3.empProd=nEP; rEmpProd.current=nEP; setEmpProd(nEP); }
+      if(nLP.length!==rLavProd.current.length){ patch3.lavProd=nLP; rLavProd.current=nLP; setLavProd(nLP); }
     }
+    guardar(patch3);
     toast2('Venta eliminada','info');
   };
 
@@ -597,18 +625,25 @@ let _guardarTimer=null;
 
   const regCompra = () => {
     const cant=parseInt(cCnt)||1, pc=parseFloat(cPc)||0, pv=parseFloat(cPv)||0;
-    let nomP='', newInv=[...inv];
+    let nomP='';
+    const patch={};
     if(cNuevo){
       if(!cRef||!cNom) return toast2('Completa referencia y nombre','err');
       const refU=cRef.toUpperCase();
       // Referencias duplicadas permitidas
-      newInv=[...inv,{id:refU,cat:cCat,nom:cNom,pc,pv,stock:cant}]; nomP=cNom;
+      const newInv=[...rInv.current,{id:refU,cat:cCat,nom:cNom,pc,pv,stock:cant}];
+      rInv.current=newInv; setInv(newInv);
+      patch.inv=newInv; nomP=cNom;
     } else {
       if(!cSel) return toast2('Selecciona el producto','err');
       nomP=cSel.nom;
     }
-    sCom([...rCom.current,{id:uid(),fecha:new Date().toISOString(),proveedor:cProv||'Proveedor',desc:cant+'x '+nomP,cant,pc,total:pc*cant,pago:cPago}]);
-    sGas([...rGas.current,{id:uid(),fecha:new Date().toISOString(),tipo:'Compra Mercancia',desc:cant+'x '+nomP,monto:pc*cant,pago:cPago}]);
+    const newCom=[...rCom.current,{id:uid(),fecha:new Date().toISOString(),proveedor:cProv||'Proveedor',desc:cant+'x '+nomP,cant,pc,total:pc*cant,pago:cPago}];
+    const newGasC=[...rGas.current,{id:uid(),fecha:new Date().toISOString(),tipo:'Compra Mercancia',desc:cant+'x '+nomP,monto:pc*cant,pago:cPago}];
+    rCom.current=newCom; setCom(newCom);
+    rGas.current=newGasC; setGas(newGasC);
+    patch.com=newCom; patch.gas=newGasC;
+    guardar(patch);
     setCB('');setCS(null);setCCnt('1');setCPc('');setCPv('');setCPrv('');setCN(false);
     toast2('Compra registrada','ok');
   };
@@ -631,8 +666,11 @@ let _guardarTimer=null;
     if(!eN) return toast2('Escribe el nombre','err');
     const monto=parseFloat(eM);
     if(!monto) return toast2('Ingresa el monto','err');
-    sEmp([...rEmp.current,{id:uid(),fecha:new Date().toISOString(),nombre:eN,cargo:eCa,periodo:ePe,monto,pago:ePa}]);
-    sGas([...rGas.current,{id:uid(),fecha:new Date().toISOString(),tipo:'Nomina',desc:eN+' ('+eCa+') '+ePe,monto,pago:ePa}]);
+    const newEmpR=[...rEmp.current,{id:uid(),fecha:new Date().toISOString(),nombre:eN,cargo:eCa,periodo:ePe,monto,pago:ePa}];
+    const newGasR=[...rGas.current,{id:uid(),fecha:new Date().toISOString(),tipo:'Nomina',desc:eN+' ('+eCa+') '+ePe,monto,pago:ePa}];
+    rEmp.current=newEmpR; setEmp(newEmpR);
+    rGas.current=newGasR; setGas(newGasR);
+    guardar({emp:newEmpR,gas:newGasR});
     setEN('');setEM('');toast2('Pago registrado','ok');
   };
 
@@ -681,8 +719,11 @@ let _guardarTimer=null;
     const cob=parseFloat(clSCb);
     if(!cob) return toast2('Ingresa el valor cobrado','err');
     const serv={id:uid(),fecha:clFe,tipo:clST,desc:clSD||clST,costo:parseFloat(clSCo)||0,cobrado:cob,rep:clSR};
-    sCli(cli.map(c=>c.id===clSel.id?{...c,servicios:[...c.servicios,serv]}:c));
-    sVen([...rVen.current,{id:uid(),fecha:new Date(clFe+'T12:00:00').toISOString(),tipo:'venta',cliente:clSel.nom,desc:'🔧 '+clST+' - '+clSel.nom,total:cob,ganancia:cob-(parseFloat(clSCo)||0),pago:'Efectivo',items:[]}]);
+    const newCli2=rCli.current.map(c=>c.id===clSel.id?{...c,servicios:[...c.servicios,serv]}:c);
+    const newVen2=[...rVen.current,{id:uid(),fecha:new Date(clFe+'T12:00:00').toISOString(),tipo:'venta',cliente:clSel.nom,desc:'🔧 '+clST+' - '+clSel.nom,total:cob,ganancia:cob-(parseFloat(clSCo)||0),pago:'Efectivo',items:[]}];
+    rCli.current=newCli2; setCli(newCli2);
+    rVen.current=newVen2; setVen(newVen2);
+    guardar({cli:newCli2,ven:newVen2});
     setClSD('');setClSCb('');setClSR('');setClSCo('0');setClB('');setClS(null);
     toast2('Servicio registrado','ok');
   };
@@ -746,6 +787,10 @@ let _guardarTimer=null;
   const vinv   = inv.reduce((a,p)=>a+p.pc*p.stock,0);
   const credsA = creds.filter(cr=>cr.activo!==false&&cr.pagado<cr.totalDeuda);
   const totDeuda = credsA.reduce((a,b)=>a+(b.totalDeuda-b.pagado),0);
+  const gEmpPend = empProd.filter(p=>!p.pagado).reduce((a,b)=>a+b.emp60,0);
+  const gLavPend = lavProd.filter(p=>!p.pagado).reduce((a,b)=>a+(b.empParte||0),0);
+  const gAdelPend = adelantos.filter(a=>!a.pagado).reduce((a,b)=>a+b.monto,0);
+  const gPorPagarEmps = Math.max(0, gEmpPend + gLavPend - gAdelPend);
 
   const TABS = [
     {id:'resumen',  lbl:'📊 Resumen'},
@@ -827,14 +872,14 @@ let _guardarTimer=null;
               const gasD=gas.filter(g=>!fechaCorte||g.fecha>fechaCorte);
               const sCompras=gasD.filter(g=>g.tipo==='Compra Mercancia').reduce((a,b)=>a+b.monto,0);
               const sAbonos=gasD.filter(g=>g.tipo==='Abono Proveedor').reduce((a,b)=>a+b.monto,0);
-              const sNomina=gasD.filter(g=>g.tipo==='Nomina').reduce((a,b)=>a+b.monto,0);
-              const sOtros=gasD.filter(g=>g.tipo!=='Compra Mercancia'&&g.tipo!=='Abono Proveedor'&&g.tipo!=='Nomina').reduce((a,b)=>a+b.monto,0);
+              const sNomina=gasD.filter(g=>g.tipo==='Nomina'||g.tipo==='Adelanto Empleado').reduce((a,b)=>a+b.monto,0);
+              const sOtros=gasD.filter(g=>g.tipo!=='Compra Mercancia'&&g.tipo!=='Abono Proveedor'&&g.tipo!=='Nomina'&&g.tipo!=='Adelanto Empleado').reduce((a,b)=>a+b.monto,0);
               const adelD=adelantos.filter(a=>!a.pagado&&(!fechaCorte||a.fecha>fechaCorte)).reduce((a,b)=>a+b.monto,0);
               const empPendD=empProd.filter(p=>!p.pagado&&(!fechaCorte||p.fecha>fechaCorte)).reduce((a,b)=>a+b.emp60,0);
-              const lavPendD=lavProd.filter(p=>!p.pagado&&(!fechaCorte||p.fecha>fechaCorte)).reduce((a,b)=>a+b.empParte,0);
+              const lavPendD=lavProd.filter(p=>!p.pagado&&(!fechaCorte||p.fecha>fechaCorte)).reduce((a,b)=>a+(b.empParte||0),0);
               const adelTotalPend=adelantos.filter(a=>!a.pagado&&(!fechaCorte||a.fecha>fechaCorte)).reduce((a,b)=>a+b.monto,0);
               const sPorPagarEmps=Math.max(0,empPendD+lavPendD-adelTotalPend);
-              const totalSalidas=sCompras+sAbonos+sNomina+sOtros; // adelantos ya incluidos en sOtros
+              const totalSalidas=sCompras+sAbonos+sNomina+sOtros; // adelantos incluidos en sNomina
               // sPorPagarEmps NO se descuenta de caja - solo cuando se pague (va a sNomina)
               const caja2=saldoIni+totalEntradas-totalSalidas;
 
@@ -905,7 +950,7 @@ let _guardarTimer=null;
                   {/* Por pagar empleados dentro de caja */}
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',background:'rgba(251,191,36,.08)',borderRadius:8,padding:'8px 12px',marginBottom:12}}>
                     <span style={{fontSize:11,color:C.mu}}>👷 Por pagar a empleados</span>
-                    <span style={{fontSize:14,fontWeight:800,color:C.or}}>{fm(sPorPagarEmps)}</span>
+                    <span style={{fontSize:14,fontWeight:800,color:C.or}}>{fm(gPorPagarEmps)}</span>
                   </div>
 
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',background:'rgba(251,191,36,.15)',borderRadius:10,padding:'12px 16px',border:`2px solid ${C.ye}`,marginBottom:10}}>
@@ -1404,8 +1449,11 @@ let _guardarTimer=null;
                                 <Btn sm col={C.gr} onClick={()=>{
                                     const abono=parseFloat(crPagoMonto)||0;
                                     if(!abono) return toast2('Ingresa el monto','err');
-                                    sCreds(creds.map(x=>x.id===cr.id?{...x,pagado:Math.min(x.pagado+abono,x.totalDeuda),pagos:[...x.pagos,{fecha:hoy(),monto:abono}]}:x));
-                                    sGas([...rGas.current,{id:uid(),fecha:new Date().toISOString(),tipo:'Abono Proveedor',desc:'Abono a '+cr.proveedor+' — '+cr.nom,monto:abono,pago:'Efectivo'}]);
+                                    const newCreds=creds.map(x=>x.id===cr.id?{...x,pagado:Math.min(x.pagado+abono,x.totalDeuda),pagos:[...x.pagos,{fecha:hoy(),monto:abono}]}:x);
+                                    const newGas=[...rGas.current,{id:uid(),fecha:new Date().toISOString(),tipo:'Abono Proveedor',desc:'Abono a '+cr.proveedor+' — '+cr.nom,monto:abono,pago:'Efectivo'}];
+                                    rCreds.current=newCreds; setCreds(newCreds);
+                                    rGas.current=newGas; setGas(newGas);
+                                    guardar({creds:newCreds,gas:newGas});
                                     setCrPagoMonto('');setCrPagoId('');
                                     toast2('Abono de '+fm(abono)+' registrado','ok');
                                   }} ch="💰 Abonar"/>
@@ -2013,10 +2061,13 @@ let _guardarTimer=null;
                     const prod={id:uid(),fecha:epFecha||hoy(),empleado:epEmp,
                       servicio:epDesc.trim(),desc:epDesc.trim(),pct,valor:val2,
                       emp60:Math.round(val2*(pct/100)),neg40:Math.round(val2*((100-pct)/100))};
-                    sEmpProd([...rEmpProd.current,prod]);
-                    sVen([...rVen.current,{id:prod.id+'e',fecha:new Date().toISOString(),
+                    const newEmpProd=[...rEmpProd.current,prod];
+                    const newVenEp=[...rVen.current,{id:prod.id+'e',fecha:new Date().toISOString(),
                       tipo:'empleado',cliente:'Taller',desc:'🔧 '+epDesc+' - '+epEmp,
-                      total:val2,ganancia:Math.round(val2*((100-pct)/100)),pago:'Efectivo',items:[]}]);
+                      total:val2,ganancia:Math.round(val2*((100-pct)/100)),pago:'Efectivo',items:[]}];
+                    rEmpProd.current=newEmpProd; setEmpProd(newEmpProd);
+                    rVen.current=newVenEp; setVen(newVenEp);
+                    guardar({empProd:newEmpProd,ven:newVenEp});
                     setEpVal('');setEpDesc('');
                     toast2('Produccion de '+fm(val2)+' registrada para '+epEmp,'ok');
                   }} col={C.gr} full ch="✅ Registrar Produccion"/>
@@ -2059,15 +2110,16 @@ let _guardarTimer=null;
                   const tS=peSemTodo.reduce((a,b)=>a+b.valor,0); // total semana (pagado o no)
                   const tM=pe.filter(p=>p.fecha.slice(0,7)===mes).reduce((a,b)=>a+b.valor,0);
                   const tT=pe.reduce((a,b)=>a+b.valor,0);
-                  // Solo lo pendiente para calcular pago
-                  const pagoSem=peSem.reduce((a,b)=>a+(b.emp60||Math.round(b.valor*(b.pct||e2.pct)/100)),0);
+                  // Todo lo pendiente (no solo semana)
+                  const peTodo=pe.filter(p=>!p.pagado);
+                  const pagoSem=peTodo.reduce((a,b)=>a+(b.emp60||Math.round(b.valor*(b.pct||e2.pct)/100)),0);
                   return (
                     <div key={e2.nom} style={{background:C.ca,border:`1px solid ${C.bo}`,borderLeft:`4px solid ${C.bl}`,borderRadius:10,padding:14,marginBottom:10}}>
                       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
                         <div style={{fontWeight:800,fontSize:15}}>{e2.nom}</div>
                         <div style={{display:'flex',gap:6}}>
                           <Btn sm col={C.ye} onClick={()=>{setAdelModal({nom:e2.nom,tipo:'taller'});setAdelMonto('');setAdelDesc('');setAdelFecha(hoy());}} ch="💰 Adelanto Taller"/>
-                          <Btn sm col={C.re} onClick={()=>{if(!confirm('¿Seguro que deseas eliminar a '+e2.nom+'?'))return;sEmps(emps.filter(x=>x.nom!==e2.nom));sEmpProd(rEmpProd.current.filter(p=>p.empleado!==e2.nom));toast2(e2.nom+' eliminado','info');}} ch="Eliminar"/>
+                          <Btn sm col={C.re} onClick={()=>{if(!confirm('¿Seguro que deseas eliminar a '+e2.nom+'?'))return;const nEm=emps.filter(x=>x.nom!==e2.nom);const nEP=rEmpProd.current.filter(p=>p.empleado!==e2.nom);rEmps.current=nEm;setEmps(nEm);rEmpProd.current=nEP;setEmpProd(nEP);guardar({emps:nEm,empProd:nEP});toast2(e2.nom+' eliminado','info');}} ch="Eliminar"/>
                         </div>
                       </div>
                       <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10,background:C.su,borderRadius:8,padding:'8px 12px'}}>
@@ -2117,10 +2169,10 @@ let _guardarTimer=null;
                             <div style={{background:'rgba(6,182,212,.1)',border:`1px solid ${C.cy}`,borderRadius:8,padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                               <div>
                                 <div style={{fontSize:11,color:C.cy,fontWeight:700}}>💰 Pago a {e2.nom}</div>
-                                <div style={{fontSize:12,color:C.mu}}>Semana del {sem.ini} al {sem.fin}</div>
+                                <div style={{fontSize:12,color:C.mu}}>Todo lo pendiente por pagar</div>
                                 <div style={{background:C.su,borderRadius:8,padding:'8px 12px',marginBottom:8}}>
                                   <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:3}}>
-                                    <span style={{color:C.mu}}>🔧 Produccion semana ({e2.pct}% de {fm(tS)})</span>
+                                    <span style={{color:C.mu}}>🔧 Produccion pendiente ({e2.pct}%)</span>
                                     <span style={{color:C.gr,fontWeight:700}}>{fm(pagoSem)}</span>
                                   </div>
                                   {totalAdel>0&&<div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:3,borderTop:`1px solid ${C.bo}`,paddingTop:4}}>
@@ -2134,9 +2186,16 @@ let _guardarTimer=null;
                                 </div>
                               </div>
                               <Btn sm col={C.gr} onClick={()=>{
-                                sEmp([...rEmp.current,{id:uid(),fecha:hoy(),nombre:e2.nom,cargo:'Taller',periodo:sem.ini+' al '+sem.fin,monto:pagoReal,pago:'Efectivo'}]);
-                                sEmpProd(rEmpProd.current.map(p=>p.empleado===e2.nom&&!p.pagado?{...p,pagado:true}:p));
-                                sAdelantos(rAdelantos.current.map(a=>a.nom===e2.nom&&!a.pagado?{...a,pagado:true}:a));
+                                const nEmpIdT=uid();
+                                const newEmpT=[...rEmp.current,{id:nEmpIdT,fecha:hoy(),nombre:e2.nom,cargo:'Taller',periodo:sem.ini+' al '+sem.fin,monto:pagoReal,pago:'Efectivo'}];
+                                const newEmpProdT=rEmpProd.current.map(p=>p.empleado===e2.nom&&!p.pagado?{...p,pagado:true}:p);
+                                const newAdelT=rAdelantos.current.map(a=>a.nom===e2.nom&&!a.pagado?{...a,pagado:true}:a);
+                                const newGasT=[...rGas.current,{id:nEmpIdT+'g',fecha:new Date().toISOString(),tipo:'Nomina',desc:'Pago taller — '+e2.nom+' ('+sem.ini+' al '+sem.fin+')',monto:pagoReal,pago:'Efectivo'}];
+                                rEmp.current=newEmpT; setEmp(newEmpT);
+                                rEmpProd.current=newEmpProdT; setEmpProd(newEmpProdT);
+                                rAdelantos.current=newAdelT; setAdelantos(newAdelT);
+                                rGas.current=newGasT; setGas(newGasT);
+                                guardar({emp:newEmpT,empProd:newEmpProdT,adelantos:newAdelT,gas:newGasT});
                                 toast2('Pago de '+fm(pagoReal)+' a '+e2.nom+' (Taller) registrado','ok');
                               }} col={C.gr} ch="✅ Registrar pago"/>
                             </div>
@@ -2220,7 +2279,7 @@ let _guardarTimer=null;
                                 <TD style={{fontWeight:700}} ch={fm(p.valor)}/>
                                 <TD style={{color:C.gr,fontWeight:700}} ch={fm(p.emp60)+' ('+p.pct+'%)'}/>
                                 <TD style={{color:C.or,fontWeight:700}} ch={fm(p.neg40)+' ('+(100-p.pct)+'%)'}/>
-                                <TD ch={<Btn sm col={C.re} onClick={()=>{if(!confirm('¿Seguro?'))return;sEmpProd(empProd.filter(x=>x.id!==p.id));sVen(ven.filter(v=>v.id!==p.id+'e'));toast2('Eliminado','info');}} ch="🗑"/>}/>
+                                <TD ch={<Btn sm col={C.re} onClick={()=>{if(!confirm('¿Seguro?'))return;const nEP=empProd.filter(x=>x.id!==p.id);const nVD=ven.filter(v=>v.id!==p.id+'e');rEmpProd.current=nEP;setEmpProd(nEP);rVen.current=nVD;setVen(nVD);guardar({empProd:nEP,ven:nVD});toast2('Eliminado','info');}} ch="🗑"/>}/>
                               </tr>
                             ))}
                             {!fil.length&&<tr><td colSpan={7} style={{textAlign:'center',padding:28,color:C.mu}}>Sin producciones para este filtro</td></tr>}
@@ -2316,10 +2375,13 @@ let _guardarTimer=null;
                     const pctI=lavEmpObj?lavEmpObj.pct:lavPct;
                     const prod={id:uid(),fecha:lvFecha||hoy(),empleado:lvEmp,servicio:lvServ.trim(),
                       valor:val2,empParte:Math.round(val2*(pctI/100)),negParte:Math.round(val2*((100-pctI)/100)),pct:pctI};
-                    sLavProd([...rLavProd.current,prod]);
-                    sVen([...rVen.current,{id:prod.id+'v',fecha:new Date().toISOString(),
+                    const newLavProd=[...rLavProd.current,prod];
+                    const newVenLv=[...rVen.current,{id:prod.id+'v',fecha:new Date().toISOString(),
                       tipo:'lavado',cliente:'Lavadero',desc:'🚿 '+lvServ+' - '+lvEmp,
-                      total:val2,ganancia:Math.round(val2*((100-pctI)/100)),pago:'Efectivo',items:[]}]);
+                      total:val2,ganancia:Math.round(val2*((100-pctI)/100)),pago:'Efectivo',items:[]}];
+                    rLavProd.current=newLavProd; setLavProd(newLavProd);
+                    rVen.current=newVenLv; setVen(newVenLv);
+                    guardar({lavProd:newLavProd,ven:newVenLv});
                     setLvVal('');setLvServ('Lavado');
                     toast2('Servicio de '+fm(val2)+' registrado','ok');
                   }} col={C.gr} full ch="✅ Registrar Lavado"/>
@@ -2339,15 +2401,16 @@ let _guardarTimer=null;
                   const tS=peSemTodo.reduce((a,b)=>a+b.valor,0); // total semana (pagado o no)
                   const tM=pe.filter(p=>p.fecha.slice(0,7)===mes).reduce((a,b)=>a+b.valor,0);
                   const tT=pe.reduce((a,b)=>a+b.valor,0);
-                  // Solo lo pendiente para calcular pago
-                  const pagoSem=peSem.reduce((a,b)=>a+(b.empParte||Math.round(b.valor*(b.pct||e2.pct)/100)),0);
+                  // Todo lo pendiente (no solo semana)
+                  const peTodo=pe.filter(p=>!p.pagado);
+                  const pagoSem=peTodo.reduce((a,b)=>a+(b.empParte||Math.round(b.valor*(b.pct||e2.pct)/100)),0);
                   return (
                     <div key={e2.nom} style={{background:C.ca,border:`1px solid ${C.bo}`,borderLeft:`4px solid ${C.cy}`,borderRadius:10,padding:14}}>
                       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
                         <div style={{fontWeight:800,fontSize:14}}>🚿 {e2.nom}</div>
                         <div style={{display:'flex',gap:6}}>
                           <Btn sm col={C.ye} onClick={()=>{setAdelModal({nom:e2.nom,tipo:'lavadero'});setAdelMonto('');setAdelDesc('');setAdelFecha(hoy());}} ch="💰 Adelanto Lavadero"/>
-                          <Btn sm col={C.re} onClick={()=>{if(!confirm('¿Seguro que deseas eliminar a '+e2.nom+'?'))return;sLavEmps(lavEmps.filter(x=>x.nom!==e2.nom));sLavProd(rLavProd.current.filter(p=>p.empleado!==e2.nom));toast2(e2.nom+' eliminado','info');}} ch="Eliminar"/>
+                          <Btn sm col={C.re} onClick={()=>{if(!confirm('¿Seguro que deseas eliminar a '+e2.nom+'?'))return;const nLEm=lavEmps.filter(x=>x.nom!==e2.nom);const nLP=rLavProd.current.filter(p=>p.empleado!==e2.nom);rLavEmps.current=nLEm;setLavEmps(nLEm);rLavProd.current=nLP;setLavProd(nLP);guardar({lavEmps:nLEm,lavProd:nLP});toast2(e2.nom+' eliminado','info');}} ch="Eliminar"/>
                         </div>
                       </div>
                       <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10,background:C.su,borderRadius:8,padding:'8px 12px'}}>
@@ -2392,15 +2455,22 @@ let _guardarTimer=null;
                             <div style={{background:'rgba(34,197,94,.1)',border:`1px solid ${C.gr}`,borderRadius:8,padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                               <div>
                                 <div style={{fontSize:11,color:C.gr,fontWeight:700}}>💰 Pago a {e2.nom}</div>
-                                <div style={{fontSize:12,color:C.mu}}>Semana del {sem.ini} al {sem.fin}</div>
-                                <div style={{fontSize:12,color:C.gr}}>Producción ({e2.pct}%): {fm(pagoSem)}</div>
+                                <div style={{fontSize:12,color:C.mu}}>Todo lo pendiente por pagar</div>
+                                <div style={{fontSize:12,color:C.gr}}>Producción pendiente ({e2.pct}%): {fm(pagoSem)}</div>
                                 {totalAdelL>0&&<div style={{fontSize:12,color:C.re}}>Adelantos: -{fm(totalAdelL)}</div>}
                                 <div style={{fontSize:15,fontWeight:800,color:C.gr}}>A pagar: {fm(pagoRealL)}</div>
                               </div>
                               <Btn sm col={C.gr} onClick={()=>{
-                                sEmp([...rEmp.current,{id:uid(),fecha:hoy(),nombre:e2.nom,cargo:'Lavadero',periodo:sem.ini+' al '+sem.fin,monto:pagoRealL,pago:'Efectivo'}]);
-                                sLavProd(rLavProd.current.map(p=>p.empleado===e2.nom&&!p.pagado?{...p,pagado:true}:p));
-                                sAdelantos(rAdelantos.current.map(a=>a.nom===e2.nom&&!a.pagado?{...a,pagado:true}:a));
+                                const nEmpIdL=uid();
+                                const newEmpL=[...rEmp.current,{id:nEmpIdL,fecha:hoy(),nombre:e2.nom,cargo:'Lavadero',periodo:sem.ini+' al '+sem.fin,monto:pagoRealL,pago:'Efectivo'}];
+                                const newLavProdL=rLavProd.current.map(p=>p.empleado===e2.nom&&!p.pagado?{...p,pagado:true}:p);
+                                const newAdelL=rAdelantos.current.map(a=>a.nom===e2.nom&&!a.pagado?{...a,pagado:true}:a);
+                                const newGasL=[...rGas.current,{id:nEmpIdL+'g',fecha:new Date().toISOString(),tipo:'Nomina',desc:'Pago lavadero — '+e2.nom+' ('+sem.ini+' al '+sem.fin+')',monto:pagoRealL,pago:'Efectivo'}];
+                                rEmp.current=newEmpL; setEmp(newEmpL);
+                                rLavProd.current=newLavProdL; setLavProd(newLavProdL);
+                                rAdelantos.current=newAdelL; setAdelantos(newAdelL);
+                                rGas.current=newGasL; setGas(newGasL);
+                                guardar({emp:newEmpL,lavProd:newLavProdL,adelantos:newAdelL,gas:newGasL});
                                 toast2('Pago de '+fm(pagoRealL)+' a '+e2.nom+' registrado','ok');
                               }} ch="✅ Registrar pago"/>
                             </div>
@@ -2441,13 +2511,16 @@ let _guardarTimer=null;
                   }).slice().reverse();
                   const totVal=fil.reduce((a,b)=>a+b.valor,0);
                   const filPendLav=fil.filter(p=>!p.pagado);
-                  const totEmp=filPendLav.reduce((a,b)=>a+b.empParte,0); // solo pendiente
+                  const totEmpBruto=filPendLav.reduce((a,b)=>a+b.empParte,0);
+                  const empsEnFilLav=[...new Set(filPendLav.map(p=>p.empleado))];
+                  const adelPendFilLav=adelantos.filter(a=>!a.pagado&&a.tipo==='lavadero'&&empsEnFilLav.includes(a.nom)).reduce((a,b)=>a+b.monto,0);
+                  const totEmp=Math.max(0,totEmpBruto-adelPendFilLav);
                   const totNeg=fil.reduce((a,b)=>a+b.negParte,0);
                   return (
                     <div>
                       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:14}}>
                         <div style={{background:C.su,borderRadius:8,padding:12,textAlign:'center'}}><div style={{fontSize:10,color:C.mu,textTransform:'uppercase',marginBottom:4}}>Total Producido</div><div style={{fontSize:22,fontWeight:800,color:C.cy}}>{fm(totVal)}</div><div style={{fontSize:10,color:C.mu}}>{fil.length} servicio(s)</div></div>
-                        <div style={{background:'rgba(34,197,94,.1)',borderRadius:8,padding:12,textAlign:'center'}}><div style={{fontSize:10,color:C.mu,textTransform:'uppercase',marginBottom:4}}>Para Tecnicos</div><div style={{fontSize:22,fontWeight:800,color:C.gr}}>{fm(totEmp)}</div></div>
+                        <div style={{background:'rgba(34,197,94,.1)',borderRadius:8,padding:12,textAlign:'center'}}><div style={{fontSize:10,color:C.mu,textTransform:'uppercase',marginBottom:4}}>Para Tecnicos</div><div style={{fontSize:22,fontWeight:800,color:C.gr}}>{fm(totEmp)}</div>{adelPendFilLav>0&&<div style={{fontSize:10,color:C.re}}>(-{fm(adelPendFilLav)} adelantos)</div>}</div>
                         <div style={{background:'rgba(255,107,26,.1)',borderRadius:8,padding:12,textAlign:'center'}}><div style={{fontSize:10,color:C.mu,textTransform:'uppercase',marginBottom:4}}>Para el Negocio</div><div style={{fontSize:22,fontWeight:800,color:C.or}}>{fm(totNeg)}</div></div>
                       </div>
                       <div style={{overflowX:'auto'}}>
@@ -2463,8 +2536,11 @@ let _guardarTimer=null;
                                 <TD style={{color:C.gr,fontWeight:700}} ch={fm(p.empParte)+' ('+p.pct+'%)'}/>
                                 <TD style={{color:C.or,fontWeight:700}} ch={fm(p.negParte)+' ('+(100-p.pct)+'%)'}/>
                                 <TD ch={<Btn sm col={C.re} onClick={()=>{if(!confirm('¿Seguro que deseas eliminar este registro?'))return;
-                                  sLavProd(rLavProd.current.filter(x=>x.id!==p.id));
-                                  sVen(ven.filter(v=>v.id!==p.id+'v'));
+                                  const nLP=rLavProd.current.filter(x=>x.id!==p.id);
+                                  const nVL=ven.filter(v=>v.id!==p.id+'v');
+                                  rLavProd.current=nLP; setLavProd(nLP);
+                                  rVen.current=nVL; setVen(nVL);
+                                  guardar({lavProd:nLP,ven:nVL});
                                   toast2('Eliminado','info');
                                 }} ch="🗑"/>}/>
                               </tr>
@@ -2553,10 +2629,15 @@ let _guardarTimer=null;
               if(!monto) return toast2('Ingresa el monto','err');
               const nuevoAdel={id:uid(),nom:adelModal.nom,tipo:adelModal.tipo,
                 fecha:adelFecha||hoy(),desc:adelDesc||'Adelanto',monto,pagado:false};
-              sAdelantos([...rAdelantos.current,nuevoAdel]);
-              // Registrar adelanto en nomina para historial
-              sEmp([...rEmp.current,{id:nuevoAdel.id+'e',fecha:nuevoAdel.fecha,nombre:nuevoAdel.nom,
-                cargo:'Adelanto',periodo:nuevoAdel.fecha,monto,pago:'Efectivo'}]);
+              const newAdel=[...rAdelantos.current,nuevoAdel];
+              const newEmp=[...rEmp.current,{id:nuevoAdel.id+'e',fecha:nuevoAdel.fecha,nombre:nuevoAdel.nom,
+                cargo:'Adelanto',periodo:nuevoAdel.fecha,monto,pago:'Efectivo'}];
+              const newGasAdel=[...rGas.current,{id:nuevoAdel.id+'g',fecha:new Date().toISOString(),
+                tipo:'Adelanto Empleado',desc:'Adelanto a '+nuevoAdel.nom+' — '+(adelDesc||'Adelanto'),monto,pago:'Efectivo'}];
+              rAdelantos.current=newAdel; setAdelantos(newAdel);
+              rEmp.current=newEmp; setEmp(newEmp);
+              rGas.current=newGasAdel; setGas(newGasAdel);
+              guardar({adelantos:newAdel,emp:newEmp,gas:newGasAdel});
               setAdelModal(null);
               toast2('Adelanto de '+fm(monto)+' registrado y descontado de caja','ok');
             }} col={C.ye} style={{flex:1,justifyContent:'center'}} ch="💰 Registrar Adelanto"/>
